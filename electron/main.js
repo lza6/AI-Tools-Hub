@@ -58,6 +58,9 @@ function httpGet(url, encoding = 'utf8', redirects = 3) {
 
 // 带重试的 httpGet（网络抖动/代理不稳时多试几次）+ GitHub 镜像回退
 // 直连 GitHub 失败（ECONNRESET/302 异常/超时）时自动切换镜像加速
+// 带重试的 httpGet（网络抖动/代理不稳时多试几次）+ GitHub 镜像回退
+// 直连 GitHub 失败（ECONNRESET/302 异常/超时）时自动切换镜像加速
+// 镜像 URL 附加 cache-bust 参数穿透镜像 CDN 缓存（实测 gh-proxy 缓存延迟会导致拉到旧清单）
 const GH_MIRRORS = [
   u => u, // 直连优先
   u => u.replace('https://raw.githubusercontent.com', 'https://gh-proxy.com/https://raw.githubusercontent.com')
@@ -67,13 +70,20 @@ const GH_MIRRORS = [
         .replace('https://github.com', 'https://ghfast.top/https://github.com')
         .replace('https://api.github.com', 'https://ghfast.top/https://api.github.com'),
 ];
+// 镜像请求加穿透参数（直连不加，保持 URL 干净可用于下载校验）
+function withCacheBust(url) {
+  if (url.includes('gh-proxy.com') || url.includes('ghfast.top')) {
+    return url + (url.includes('?') ? '&' : '?') + '_cb=' + Date.now();
+  }
+  return url;
+}
 function isGitHubUrl(u) { return u.includes('github.com') || u.includes('githubusercontent.com'); }
 
 async function httpGetRetry(url, encoding, retries = 2) {
   let lastErr;
   const attempts = isGitHubUrl(url) ? GH_MIRRORS.length : 1;
   for (let m = 0; m < attempts; m++) {
-    const target = GH_MIRRORS[m](url);
+    const target = withCacheBust(GH_MIRRORS[m](url));
     for (let i = 0; i <= retries; i++) {
       try { return await httpGet(target, encoding); }
       catch (e) {

@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "updatedAt": "2026-07-13",
   "tools": [
     {
@@ -7,11 +7,13 @@
       "name": "ICM",
       "fullName": "Infinite Context Memory",
       "type": "cli-tool",
+      "category": "记忆",
       "repo": "rtk-ai/icm",
       "description": "为 LLM 提供持久记忆：跨会话记忆存储、语义召回、知识图谱（memoir）、自动整理与衰减，支持 Claude Code / Claude Desktop 集成。",
       "capabilities": ["跨会话持久记忆", "语义搜索召回", "memoir 知识图谱", "会话转录归档", "记忆健康审计"],
       "solves": "AI 会话结束即失忆；icm 让每个项目拥有可搜索、可整理的长期记忆库。",
       "homepage": "https://github.com/rtk-ai/icm",
+      "conflicts": [],
       "install": {
         "windows": { "type": "ps1", "url": "https://raw.githubusercontent.com/rtk-ai/icm/main/install.ps1", "oneLiner": "irm https://raw.githubusercontent.com/rtk-ai/icm/main/install.ps1 | iex" },
         "macos": { "type": "shell", "url": "https://raw.githubusercontent.com/rtk-ai/icm/main/install.sh", "oneLiner": "curl -fsSL https://raw.githubusercontent.com/rtk-ai/icm/main/install.sh | bash" },
@@ -34,15 +36,17 @@
       "name": "RTK",
       "fullName": "RTK CLI Proxy",
       "type": "cli-tool",
+      "category": "上下文优化",
       "repo": "rtk-ai/rtk",
       "description": "高性能 CLI 代理：在输出进入 LLM 上下文前过滤和压缩（git/gh/docker/kubectl/grep 等数十个命令的 token 优化输出）。",
       "capabilities": ["token 优化输出", "git/gh/docker/kubectl 代理", "日志去重过滤", "JSON 结构提取", "敏感信息掩码"],
       "solves": "命令输出吃掉大量上下文 token；rtk 压缩 50-90%，让 agent 跑得更远更省。",
       "homepage": "https://github.com/rtk-ai/rtk",
+      "conflicts": ["说明: rtk 代理包装 git/gh/docker 等命令输出，与其它改写同类命令输出的 CLI 代理可能冲突（如同时存在多个输出压缩代理）"],
       "install": {
-        "windows": { "type": "winget", "pkg": "rtk-ai.rtk", "oneLiner": "winget install rtk-ai.rtk" },
-        "macos": { "type": "brew", "pkg": "rtk", "oneLiner": "brew install rtk" },
-        "linux": { "type": "shell", "url": "https://raw.githubusercontent.com/rtk-ai/rtk/main/install.sh", "oneLiner": "curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/main/install.sh | bash" }
+        "windows": { "type": "github-release", "asset": "rtk-x86_64-pc-windows-msvc.zip", "file": "rtk.exe", "oneLiner": "从 GitHub Releases 下载 rtk-x86_64-pc-windows-msvc.zip 并解压到 %LOCALAPPDATA%\\Programs\\rtk" },
+        "macos": { "type": "github-release", "asset": "rtk-x86_64-apple-darwin.tar.gz", "file": "rtk", "oneLiner": "从 GitHub Releases 下载 darwin tar.gz 安装" },
+        "linux": { "type": "github-release", "asset": "rtk-x86_64-unknown-linux-musl.tar.gz", "file": "rtk", "oneLiner": "从 GitHub Releases 下载 linux musl tar.gz 安装" }
       },
       "versionCmd": "rtk --version",
       "skills": [

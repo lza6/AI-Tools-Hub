@@ -5,6 +5,7 @@ contextBridge.exposeInMainWorld('aihub', {
   inspectTool: tool => ipcRenderer.invoke('tool:inspect', tool),
   checkAllUpdates: tools => ipcRenderer.invoke('tool:checkAllUpdates', tools),
   skillStatus: tool => ipcRenderer.invoke('skill:status', tool),
+  installLogs: id => ipcRenderer.invoke('install:logs', id),
   installTool: tool => ipcRenderer.invoke('tool:install', tool),
   installSkill: (tool, skill) => ipcRenderer.invoke('skill:install', tool, skill),
   openExternal: url => ipcRenderer.invoke('shell:open', url),

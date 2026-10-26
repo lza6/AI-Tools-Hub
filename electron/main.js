@@ -1,6 +1,6 @@
 const { app, BrowserWindow, ipcMain, shell } = require('electron');
-const { execFile } = require('child_process');
-const { existsSync, readdirSync, readFileSync, writeFileSync } = require('fs');
+const { execFile, execFileSync } = require('child_process');
+const { existsSync, readdirSync, readFileSync, writeFileSync, mkdirSync, rmSync, copyFileSync, createWriteStream } = require('fs');
 const https = require('https');
 const path = require('path');
 const os = require('os');
@@ -150,43 +150,120 @@ ipcMain.handle('skill:status', (_e, tool) => {
   });
   return out;
 });
+ipcMain.handle('install:logs', (_e, id) => (installLogs[id] || []).join('\n'));
+
+// 安装日志缓冲（黑匣子）：renderer 实时拉取
+const installLogs = {};
+function logInstall(id, line) {
+  if (!installLogs[id]) installLogs[id] = [];
+  installLogs[id].push(`[${new Date().toLocaleTimeString()}] ${line}`);
+  if (installLogs[id].length > 500) installLogs[id].shift();
+}
+function runCmdLogged(id, cmd, args, timeout = 600000) {
+  logInstall(id, `$ ${cmd} ${args.join(' ')}`);
+  return new Promise(resolve => {
+    const child = execFile(cmd, args, { timeout, windowsHide: true, maxBuffer: 10 * 1024 * 1024 }, (err, stdout, stderr) => {
+      const out = (stdout || '').trim(), errOut = (stderr || '').trim();
+      if (out) logInstall(id, out);
+      if (errOut) logInstall(id, `[stderr] ${errOut}`);
+      if (err) logInstall(id, `[exit 错误] ${err.message}`);
+      resolve({ ok: !err, output: [out, errOut].filter(Boolean).join('\n'), error: err ? String(err.message) : null });
+    });
+  });
+}
+
+// github-release 直连安装：下载 repo 最新 release 的指定 asset 并安装到用户目录
+async function installFromGithubRelease(id, repo, assetName, destDir, extract) {
+  logInstall(id, `查询 GitHub Release: ${repo}`);
+  const rel = JSON.parse(await httpGet(`https://api.github.com/repos/${repo}/releases/latest`));
+  const asset = (rel.assets || []).find(a => a.name === assetName);
+  if (!asset) throw new Error(`Release ${rel.tag_name} 中未找到资产 ${assetName}`);
+  logInstall(id, `下载: ${asset.browser_download_url} (${(asset.size / 1048576).toFixed(1)} MB)`);
+  const tmpDir = path.join(os.tmpdir(), `aihub-ghrel-${id}`);
+  const zipPath = path.join(tmpDir, assetName);
+  try { rmSync(tmpDir, { recursive: true, force: true }); } catch {}
+  mkdirSync(tmpDir, { recursive: true });
+  await new Promise((resolve, reject) => {
+    const file = createWriteStream(zipPath);
+    https.get(asset.browser_download_url, res => {
+      if (res.statusCode !== 200) return reject(new Error(`下载 HTTP ${res.statusCode}`));
+      const total = +res.headers.content_length || asset.size;
+      let done = 0;
+      res.on('data', c => { done += c.length; logInstall(id, `下载中 ${(done / 1048576).toFixed(1)}/${(total / 1048576).toFixed(1)} MB`); });
+      res.pipe(file); file.on('finish', () => { file.close(); resolve(); }); file.on('error', reject);
+    }).on('error', reject);
+  });
+  logInstall(id, `解压到 ${tmpDir}`);
+  if (assetName.endsWith('.zip')) {
+    execFileSync('powershell.exe', ['-NoProfile', '-Command', `Expand-Archive -Path '${zipPath}' -DestinationPath '${tmpDir}\\unz' -Force`]);
+  } else {
+    execFileSync('tar', ['-xf', zipPath, '-C', path.join(tmpDir, 'unz_mkdir') && (mkdirSync(path.join(tmpDir, 'unz'), { recursive: true }), path.join(tmpDir, 'unz'))]);
+  }
+  // extract: { file: "rtk.exe", destDir, prependPath: true }
+  const dest = extract.destDir || path.join(process.env.LOCALAPPDATA || os.homedir(), 'Programs', id);
+  mkdirSync(dest, { recursive: true });
+  const srcFile = findFileRecursive(path.join(tmpDir, 'unz'), extract.file);
+  if (!srcFile) throw new Error(`解压后未找到 ${extract.file}`);
+  copyFileSync(srcFile, path.join(dest, path.basename(srcFile)));
+  logInstall(id, `已安装到 ${dest}`);
+  if (extract.prependPath !== false) addUserPath(dest, id);
+  return { ok: true, output: `已安装 ${extract.file} → ${dest}，已加入用户 PATH` };
+}
+
+function findFileRecursive(dir, name) {
+  try {
+    for (const f of readdirSync(dir, { withFileTypes: true })) {
+      const p = path.join(dir, f.name);
+      if (f.isDirectory()) { const r = findFileRecursive(p, name); if (r) return r; }
+      else if (f.name === name) return p;
+    }
+  } catch {}
+  return null;
+}
+function addUserPath(dir, id) {
+  if (!IS_WIN) return; // mac/linux 安装脚本自己处理 PATH
+  try {
+    const up = process.env.PATH || '';
+    execFileSync('powershell.exe', ['-NoProfile', '-Command',
+      `$d='${dir}'; $u=[Environment]::GetEnvironmentVariable('Path','User'); if($u -notlike "*$d*"){ $parts=$u -split ';' | Where-Object {$_ -and $_ -ne $d}; [Environment]::SetEnvironmentVariable('Path', ($d+';'+($parts -join ';')), 'User'); 'PATH-ADDED' } else { 'PATH-EXISTS' }`], { windowsHide: true });
+    logInstall(id, '已将安装目录加入用户 PATH（最前）');
+  } catch (e) { logInstall(id, `[warn] PATH 写入失败: ${e.message}`); }
+}
 
 ipcMain.handle('tool:install', async (_e, tool) => {
   try {
+    const id = tool.id;
+    logInstall(id, `===== 开始安装 ${tool.name} =====`);
     // 分平台结构: install.{windows,macos,linux}，取当前平台，逐级回退
     const inst = tool.install?.[process.platform] || tool.install?.windows || tool.install?.linux || tool.install?.macos;
-    if (!inst) return { ok: false, output: `清单中缺少 ${process.platform} 平台的安装配置` };
+    if (!inst) { logInstall(id, `[错误] 清单中缺少 ${process.platform} 平台的安装配置`); return { ok: false, output: `清单中缺少 ${process.platform} 平台的安装配置` }; }
+    logInstall(id, `安装方式: ${inst.type} ${inst.pkg || inst.asset || inst.url || ''}`);
     let r;
-    if (inst.type === 'ps1') {
-      if (!IS_WIN) return { ok: false, output: '该安装方式仅支持 Windows，请参考主页的 macOS/Linux 安装命令' };
+    if (inst.type === 'github-release') {
+      r = await installFromGithubRelease(id, tool.repo, inst.asset, inst.destDir, { file: inst.file, prependPath: true });
+    } else if (inst.type === 'ps1') {
+      if (!IS_WIN) return { ok: false, output: '该安装方式仅支持 Windows' };
       const script = await httpGet(inst.url);
       const tmp = path.join(os.tmpdir(), `aihub-install-${tool.id}.ps1`);
       writeFileSync(tmp, script, 'utf8');
-      r = await runCmd('powershell.exe', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', tmp], 600000);
+      r = await runCmdLogged(id, 'powershell.exe', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', tmp], 600000);
     } else if (inst.type === 'shell') {
-      // macOS / Linux：bash -c 安装脚本
       const script = await httpGet(inst.url);
       const tmp = path.join(os.tmpdir(), `aihub-install-${tool.id}.sh`);
       writeFileSync(tmp, script, 'utf8');
-      r = await runCmd('bash', [tmp], 600000);
+      r = await runCmdLogged(id, 'bash', [tmp], 600000);
     } else if (inst.type === 'npm') {
-      r = await runCmd('npm', ['install', '-g', inst.pkg], 600000);
+      r = await runCmdLogged(id, 'npm', ['install', '-g', inst.pkg], 600000);
     } else if (inst.type === 'brew') {
-      r = await runCmd('brew', ['install', inst.pkg], 600000);
+      r = await runCmdLogged(id, 'brew', ['install', inst.pkg], 600000);
     } else if (inst.type === 'winget') {
-      // winget 可能不在 PATH（WindowsApps 下），用全路径回退
       const wingetExe = path.join(process.env.LOCALAPPDATA || '', 'Microsoft', 'WindowsApps', 'winget.exe');
       const exe = existsSync(wingetExe) ? wingetExe : 'winget';
-      r = await new Promise(resolve => {
-        execFile(exe, ['install', inst.pkg, '--accept-source-agreements', '--accept-package-agreements', '--silent'],
-          { timeout: 600000, windowsHide: true }, (err, stdout, stderr) => {
-            resolve({ ok: !err, output: (stdout || stderr || '').trim(), error: err ? String(err.message) : null });
-          });
-      });
+      r = await runCmdLogged(id, exe, ['install', inst.pkg, '--source', 'winget', '--accept-source-agreements', '--accept-package-agreements', '--silent', '--disable-interactivity'], 600000);
     } else if (inst.type === 'cargo') {
-      r = await runCmd('cargo', ['install', ...(inst.args || [inst.pkg])], 600000);
+      r = await runCmdLogged(id, 'cargo', ['install', ...(inst.args || [inst.pkg])], 600000);
     } else {
-      return { ok: false, output: `不支持的安装类型: ${inst.type}` };
+      r = { ok: false, output: `不支持的安装类型: ${inst.type}` };
     }
     return r;
   } catch (e) {

@@ -90,6 +90,25 @@
   .spin { display: inline-block; animation: r 1s linear infinite; } @keyframes r { to { transform: rotate(360deg); } }
   /* 主题切换 */
   #theme-btn { font-size: 16px; padding: 6px 10px; }
+  /* 页签导航 */
+  #nav { display: flex; gap: 4px; margin-left: 20px; }
+  .nav-btn { background: none; border: none; font-size: 14px; padding: 10px 16px; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; border-radius: 0; }
+  .nav-btn:hover { color: var(--text); }
+  .nav-btn.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+  .page { display: none; }
+  .page.active { display: block; }
+  /* 日志中心 */
+  #page-logs .log-toolbar { display: flex; gap: 10px; align-items: center; padding: 14px 24px; flex-wrap: wrap; }
+  #page-logs select { background: var(--panel); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 7px 10px; font-size: 13px; }
+  #log-search { background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 7px 12px; font-size: 13px; width: 220px; outline: none; }
+  #log-view { margin: 0 24px 24px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px; font-family: Consolas, monospace; font-size: 12px; line-height: 1.7; white-space: pre-wrap; overflow: auto; max-height: calc(100vh - 250px); color: var(--muted); }
+  .lv-ERROR { color: var(--red); font-weight: 600; }
+  .lv-WARN { color: var(--orange); }
+  .lv-INFO { color: var(--green); }
+  .lv-DEBUG { color: var(--muted); opacity: .8; }
+  #log-stats { padding: 0 24px 6px; color: var(--muted); font-size: 12px; display: flex; gap: 16px; }
+  #live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); display: inline-block; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 50% { opacity: .3; } }
 </style>
 </head>
 <body>
@@ -106,6 +125,12 @@
   </div>
 </header>
 
+<div id="nav">
+  <button class="nav-btn active" data-page="market">🧰 工具广场</button>
+  <button class="nav-btn" data-page="logs">📋 日志中心</button>
+</div>
+
+<div id="page-market" class="page active">
 <div id="self-update" style="display:none; margin: 10px 24px 0; padding: 10px 16px; border-radius: 8px; background: color-mix(in srgb, var(--accent) 10%, transparent); border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent); font-size: 13px; align-items:center; gap:12px;">
   <span id="su-text">当前版本…</span>
   <button id="su-action" class="ghost" style="display:none"></button>
@@ -116,6 +141,30 @@
 <div id="log-wrap"><div id="log-head" onclick="$('#log').style.display = $('#log').style.display==='none'?'block':'none'">🖥 安装日志（黑匣子）<span style="color:var(--muted);margin-left:auto">点击折叠/展开</span></div><div id="log"></div></div>
 <div id="grid"></div>
 <div id="pager"></div>
+</div><!-- /page-market -->
+
+<div id="page-logs" class="page">
+  <div class="log-toolbar">
+    <span id="live-dot"></span><span style="font-size:13px;font-weight:600">实时日志</span>
+    <select id="lg-level">
+      <option value="DEBUG">等级: DEBUG（最详细）</option>
+      <option value="INFO">等级: INFO</option>
+      <option value="WARN">等级: WARN</option>
+      <option value="ERROR">等级: ERROR</option>
+    </select>
+    <select id="lg-tag"><option value="">全部来源</option></select>
+    <input id="log-search" placeholder="🔍 搜索日志内容…">
+    <label style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px"><input type="checkbox" id="lg-live" checked> 实时刷新</label>
+    <span style="flex:1"></span>
+    <button class="ghost" id="lg-refresh">↻ 刷新</button>
+    <button class="ghost" id="lg-export">💾 导出</button>
+    <button class="ghost" id="lg-opendir">📂 日志目录</button>
+    <button class="ghost" id="lg-clear">🗑 清空显示</button>
+  </div>
+  <div id="log-stats"></div>
+  <div id="log-view">加载中…</div>
+</div>
+
 <div id="modal-mask"><div id="modal"></div></div>
 
 <script>
@@ -350,6 +399,52 @@ $('#btn-check').onclick = async () => {
   render(); $('#btn-check').disabled = false;
 };
 $('#btn-registry').onclick = async () => { states = {}; skillStates = {}; curPage = 1; await boot(); };
+
+// ---------- 页签导航 ----------
+document.querySelectorAll('.nav-btn').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.nav-btn').forEach(x => x.classList.toggle('active', x === b));
+  document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + b.dataset.page));
+  if (b.dataset.page === 'logs') refreshLogs();
+});
+
+// ---------- 日志中心 ----------
+let logFilter = { level: 'DEBUG', tag: '', keyword: '' };
+let logTags = new Set();
+function renderLogEntries(entries) {
+  const counts = { ERROR: 0, WARN: 0, INFO: 0, DEBUG: 0 };
+  entries.forEach(e => counts[e.level] = (counts[e.level] || 0) + 1);
+  $('#log-stats').innerHTML = `<span>共 ${entries.length} 条</span><span class="lv-ERROR">错误 ${counts.ERROR}</span><span class="lv-WARN">警告 ${counts.WARN}</span><span class="lv-INFO">信息 ${counts.INFO}</span><span class="lv-DEBUG">调试 ${counts.DEBUG}</span><span>💾 文件落盘: userData/logs（按天+2MB 轮转，保留 7 天）</span>`;
+  $('#log-view').innerHTML = entries.map(e => {
+    const d = new Date(e.t);
+    const ts = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}.${String(d.getMilliseconds()).padStart(3, '0')}`;
+    return `<div><span style="opacity:.5">${ts}</span> <span class="lv-${e.level}">[${e.level}]</span> <span style="color:var(--accent)">[${esc(e.tag)}]</span> ${esc(e.msg)}</div>`;
+  }).join('') || '（暂无匹配日志）';
+  $('#log-view').scrollTop = $('#log-view').scrollHeight;
+}
+async function refreshLogs() {
+  const entries = await window.aihub.logsQuery(logFilter);
+  entries.forEach(e => logTags.add(e.tag));
+  const tagSel = $('#lg-tag');
+  const cur = tagSel.value;
+  tagSel.innerHTML = '<option value="">全部来源</option>' + [...logTags].sort().map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('');
+  tagSel.value = cur;
+  renderLogEntries(entries);
+}
+$('#lg-level').onchange = e => { logFilter.level = e.target.value; refreshLogs(); };
+$('#lg-tag').onchange = e => { logFilter.tag = e.target.value; refreshLogs(); };
+$('#log-search').addEventListener('input', e => { logFilter.keyword = e.target.value.trim(); refreshLogs(); });
+$('#lg-refresh').onclick = refreshLogs;
+$('#lg-clear').onclick = async () => { await window.aihub.logsClear(); refreshLogs(); };
+$('#lg-opendir').onclick = () => window.aihub.logsOpenDir();
+$('#lg-export').onclick = async () => {
+  const text = await window.aihub.logsDump();
+  const blob = new Blob([text], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `aihub-logs-${new Date().toISOString().slice(0, 19).replace(/[T:]/g, '-')}.log`;
+  a.click();
+};
+setInterval(() => { if ($('#page-logs').classList.contains('active') && $('#lg-live').checked) refreshLogs(); }, 1500);
 
 // ---------- 应用自更新 ----------
 const suBar = $('#self-update'), suText = $('#su-text'), suBtn = $('#su-action');

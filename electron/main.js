@@ -5,6 +5,7 @@ const https = require('https');
 const path = require('path');
 const os = require('os');
 const { autoUpdater } = require('electron-updater');
+const logger = require('./logger');
 
 // ------- 应用自更新（GitHub Releases）-------
 function setupAutoUpdater(win) {
@@ -12,14 +13,15 @@ function setupAutoUpdater(win) {
   autoUpdater.autoDownload = false; // 用户点"立即更新"再下载
 
   autoUpdater.on('update-available', (info) => {
+    logger.info('self-update', `发现新版本 ${info.version}`);
     win.webContents.send('update:available', { version: info.version, releaseNotes: info.releaseNotes || '' });
   });
-  autoUpdater.on('update-not-available', () => win.webContents.send('update:not-available'));
+  autoUpdater.on('update-not-available', () => { logger.debug('self-update', '已是最新版本'); win.webContents.send('update:not-available'); });
   autoUpdater.on('download-progress', (p) => {
     win.webContents.send('update:progress', { percent: Math.round(p.percent), mb: (p.transferred / 1048576).toFixed(1), total: (p.total / 1048576).toFixed(1) });
   });
-  autoUpdater.on('update-downloaded', () => win.webContents.send('update:downloaded'));
-  autoUpdater.on('error', (e) => win.webContents.send('update:error', String(e)));
+  autoUpdater.on('update-downloaded', () => { logger.info('self-update', '更新包下载完成'); win.webContents.send('update:downloaded'); });
+  autoUpdater.on('error', (e) => { logger.error('self-update', `更新错误: ${e}`); win.webContents.send('update:error', String(e)); });
 
   autoUpdater.checkForUpdates().catch(() => {}); // 启动即静默检查
 }
@@ -76,20 +78,23 @@ async function getLatestReleaseTag(repo) {
 
 async function inspectTool(tool) {
   const bin = tool.id;
+  logger.debug(`inspect:${bin}`, `检测 ${bin}: cmd=${tool.versionCmd}`);
   const [detect, ver] = await Promise.all([
     IS_WIN ? runCmd('where.exe', [bin]) : runCmd('which', [bin]),
     runCmd(tool.versionCmd.split(' ')[0], tool.versionCmd.split(' ').slice(1)),
   ]);
   const installed = detect.ok && ver.ok;
   const localVersion = installed ? extractVersion(ver.output) : null;
+  logger.debug(`inspect:${bin}`, `where=${detect.ok}, version=${localVersion || '未检测到'}${installed ? '' : ` (raw: ${(ver.output || detect.error || '').slice(0, 200)})`}`);
   let latestVersion = null, hasUpdate = false;
   if (installed) {
     try {
       const tag = await getLatestReleaseTag(tool.repo);
       latestVersion = extractVersion(tag) || (tag ? tag.replace(/^v/, '') : null);
       hasUpdate = !!(localVersion && latestVersion && latestVersion !== localVersion);
-    } catch { /* 网络失败静默 */ }
+    } catch (e) { logger.warn(`inspect:${bin}`, `更新检查失败: ${e.message}`); }
   }
+  logger.info(`inspect:${bin}`, `结果: installed=${installed}, local=${localVersion || '-'}, latest=${latestVersion || '-'}, update=${hasUpdate}`);
   return { id: tool.id, installed, localVersion, latestVersion, hasUpdate, rawOutput: ver.output || detect.error };
 }
 
@@ -151,13 +156,20 @@ ipcMain.handle('skill:status', (_e, tool) => {
   return out;
 });
 ipcMain.handle('install:logs', (_e, id) => (installLogs[id] || []).join('\n'));
+// 日志中心
+ipcMain.handle('logs:query', (_e, opts) => logger.query(opts || {}));
+ipcMain.handle('logs:dump', () => logger.dump());
+ipcMain.handle('logs:file', () => logger.logDir());
+ipcMain.handle('logs:clear', () => { logger.clearMem(); return true; });
+ipcMain.handle('logs:openDir', () => { shell.openPath(logger.logDir()); return true; });
 
-// 安装日志缓冲（黑匣子）：renderer 实时拉取
+// 安装日志缓冲（黑匣子）：renderer 实时拉取，同时全量走 logger 落盘
 const installLogs = {};
 function logInstall(id, line) {
   if (!installLogs[id]) installLogs[id] = [];
   installLogs[id].push(`[${new Date().toLocaleTimeString()}] ${line}`);
   if (installLogs[id].length > 500) installLogs[id].shift();
+  logger.info(`install:${id}`, line);
 }
 function runCmdLogged(id, cmd, args, timeout = 600000) {
   logInstall(id, `$ ${cmd} ${args.join(' ')}`);
@@ -295,6 +307,8 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  logger.init();
+  logger.info('app', `AI-Tools-Hub 启动 v${app.getVersion()} (${process.platform})`);
   createWindow();
   app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow(); });
 });

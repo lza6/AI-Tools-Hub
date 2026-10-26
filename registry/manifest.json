@@ -46,6 +46,97 @@
       ]
     },
     {
+      "id": "claude-mem",
+      "name": "Claude-Mem",
+      "fullName": "Claude-Mem Session Memory",
+      "type": "mcp",
+      "category": "记忆",
+      "repo": "thedotmack/claude-mem",
+      "description": "Claude Code 会话记忆：自动捕获工具使用观测、生成语义摘要、跨会话恢复上下文，会话结束知识不丢失。",
+      "capabilities": ["自动捕获工具观测", "语义摘要生成", "跨会话上下文恢复", "MCP 搜索工具", "Gemini CLI 支持"],
+      "solves": "每次开新会话都要重新解释项目背景；claude-mem 全自动记录并回放，真正零手动。",
+      "homepage": "https://github.com/thedotmack/claude-mem",
+      "conflicts": ["与 ICM 功能定位重叠（会话记忆），二选一或按项目区分使用"],
+      "install": {
+        "windows": { "type": "npm", "pkg": "claude-mem", "oneLiner": "npx claude-mem install（自动配置 Claude Code hooks + MCP）" },
+        "macos": { "type": "npm", "pkg": "claude-mem", "oneLiner": "npx claude-mem install" },
+        "linux": { "type": "npm", "pkg": "claude-mem", "oneLiner": "npx claude-mem install" }
+      },
+      "versionCmd": "claude-mem --version",
+      "usage": {
+        "quickStart": "npx claude-mem install",
+        "quickStartDesc": "一条命令全自动：安装 hooks 到 Claude Code（SessionStart/SessionEnd 捕获与回放），装完重启 Claude Code 即生效",
+        "commands": [
+          { "cmd": "npx claude-mem install", "desc": "安装并自动配置 Claude Code（hooks + MCP 一体）" },
+          { "cmd": "npx claude-mem install --ide gemini-cli", "desc": "安装到 Gemini CLI（自动检测 ~/.gemini）" },
+          { "cmd": "claude-mem uninstall", "desc": "卸载全部 hooks 与配置" }
+        ],
+        "notes": "全自动触发：SessionEnd 捕获本次会话的工具观测→语义压缩入库；SessionStart 自动注入相关记忆。与 ICM 的区别：claude-mem 免手动零配置但绑定 Claude Code，ICM 可跨 18 个 agent 且存取无 LLM 调用"
+      },
+      "skills": []
+    },
+    {
+      "id": "code-review-graph",
+      "name": "Code-Review-Graph",
+      "fullName": "Code Review Knowledge Graph",
+      "type": "mcp",
+      "category": "代码图谱",
+      "repo": "tirth8205/code-review-graph",
+      "description": "本地优先代码知识图谱：解析代码库建图，审查变更时给风险评分、受影响流分析，MCP+CLI 双形态。",
+      "capabilities": ["代码库解析建图", "变更风险评分", "受影响流分析", "MCP+CLI 双形态", "多平台自动配置"],
+      "solves": "代码审查靠人肉读 diff 猜影响面；建图后 detect_changes 直接给出风险评分和受影响执行流。",
+      "homepage": "https://github.com/tirth8205/code-review-graph",
+      "conflicts": [],
+      "install": {
+        "windows": { "type": "pip", "pkg": "code-review-graph", "oneLiner": "pip install code-review-graph 然后 code-review-graph install" },
+        "macos": { "type": "pip", "pkg": "code-review-graph", "oneLiner": "pip install code-review-graph" },
+        "linux": { "type": "pip", "pkg": "code-review-graph", "oneLiner": "pip install code-review-graph" }
+      },
+      "versionCmd": "code-review-graph --version",
+      "usage": {
+        "quickStart": "code-review-graph install",
+        "quickStartDesc": "一条命令自动检测已装平台（Claude Code/Codex/Cursor/Gemini CLI）写入 MCP 配置+hooks+规则注入",
+        "commands": [
+          { "cmd": "code-review-graph install", "desc": "自动检测所有 AI 平台并配置 MCP/hooks/规则" },
+          { "cmd": "code-review-graph build", "desc": "解析当前代码库建图（项目根目录执行）" },
+          { "cmd": "code-review-graph install --platform claude-code", "desc": "只配置 Claude Code" },
+          { "cmd": "code-review-graph install --verify", "desc": "配置并自检" }
+        ],
+        "notes": "建图后文件变更 hook 自动增量更新索引；审查时用 detect_changes 拿风险评分、get_impact_radius 拿影响面。本机已装（.local/bin），首次用先 code-review-graph build"
+      },
+      "skills": []
+    },
+    {
+      "id": "context-mode",
+      "name": "Context-Mode",
+      "fullName": "Context Mode MCP Router",
+      "type": "mcp",
+      "category": "上下文优化",
+      "repo": "mksglu/context-mode",
+      "description": "MCP 工具调用输出压缩路由：原始数据（Playwright 快照/GitHub 结果等）不再进上下文，索引进 SQLite FTS5，agent 只取相关部分。",
+      "capabilities": ["MCP 输出压缩路由", "SQLite FTS5 事件索引", "BM25 相关性检索", "会话连续性", "状态栏节省统计"],
+      "solves": "每次 MCP 调用都把原始大数据灌进上下文（一次 Playwright 快照 56KB）；context-mode 强制路由到本地库，按需检索。",
+      "homepage": "https://github.com/mksglu/context-mode",
+      "conflicts": ["与 RTK 定位部分重叠（RTK 压缩 CLI 命令输出，context-mode 压缩 MCP 工具输出，可共存互补）"],
+      "install": {
+        "windows": { "type": "npm", "pkg": "context-mode", "oneLiner": "claude mcp add context-mode -- npx -y context-mode" },
+        "macos": { "type": "npm", "pkg": "context-mode", "oneLiner": "claude mcp add context-mode -- npx -y context-mode" },
+        "linux": { "type": "npm", "pkg": "context-mode", "oneLiner": "claude mcp add context-mode -- npx -y context-mode" }
+      },
+      "versionCmd": "context-mode --version",
+      "usage": {
+        "quickStart": "claude mcp add context-mode -- npx -y context-mode",
+        "quickStartDesc": "一条命令注册 MCP；hook 路由自动生效，MCP 原始输出进本地 SQLite 不进上下文",
+        "commands": [
+          { "cmd": "claude mcp add context-mode -- npx -y context-mode", "desc": "注册到 Claude Code（hook 路由自动启用）" },
+          { "cmd": "npm install -g context-mode", "desc": "全局安装 CLI（statusline 等需要）" },
+          { "cmd": "context-mode statusline", "desc": "状态栏：本会话节省额/累计节省/效率百分比" }
+        ],
+        "notes": "设计原则：只管『数据去哪』不干预『模型怎么写』（无 brevity prompt 强制）；不做 --continue 时会话数据即刻清除，干净开始"
+      },
+      "skills": []
+    },
+    {
       "id": "rtk",
       "name": "RTK",
       "fullName": "RTK CLI Proxy",

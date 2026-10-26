@@ -356,6 +356,8 @@ ipcMain.handle('tool:install', async (_e, tool) => {
       r = await runCmdLogged(id, exe, ['install', inst.pkg, '--source', 'winget', '--accept-source-agreements', '--accept-package-agreements', '--silent', '--disable-interactivity'], 600000);
     } else if (inst.type === 'cargo') {
       r = await runCmdLogged(id, 'cargo', ['install', ...(inst.args || [inst.pkg])], 600000);
+    } else if (inst.type === 'pip') {
+      r = await runCmdLogged(id, 'pip', ['install', ...(inst.args || [inst.pkg])], 600000);
     } else {
       r = { ok: false, output: `不支持的安装类型: ${inst.type}` };
     }

@@ -20,6 +20,20 @@
         "linux": { "type": "shell", "url": "https://raw.githubusercontent.com/rtk-ai/icm/main/install.sh", "oneLiner": "curl -fsSL https://raw.githubusercontent.com/rtk-ai/icm/main/install.sh | bash" }
       },
       "versionCmd": "icm --version",
+      "usage": {
+        "quickStart": "icm init",
+        "quickStartDesc": "一条命令完成全部集成：自动检测已装的 agent（Claude Code / Codex / Gemini CLI 等最多 18 个）并写入对应 hooks、skills 和指令",
+        "commands": [
+          { "cmd": "icm init", "desc": "初始化：为所有检测到的 agent 配置记忆集成（首次必跑）" },
+          { "cmd": "icm store -t decisions-myapp -c \"决策内容\" -i high", "desc": "存一条记忆：-t 主题（建议 decisions-项目名）、-c 内容、-i 重要性(high/critical)" },
+          { "cmd": "icm recall \"怎么配置的 auth\"", "desc": "语义搜索记忆（首次会下载 ~2GB 嵌入模型，加 --no-embeddings 可纯关键词检索）" },
+          { "cmd": "icm list --topic decisions-myapp", "desc": "列出某主题下全部记忆" },
+          { "cmd": "icm doctor", "desc": "体检：检查各 agent 的 hook 路径与 SQLite 库完整性" },
+          { "cmd": "icm health", "desc": "记忆健康审计：过期度、需要整理的主题" },
+          { "cmd": "icm consolidate-all", "desc": "把超量主题压缩成摘要（适合挂 cron 定期跑）" }
+        ],
+        "notes": "无需 LLM 调用即可存取（区别于 Mem0/claude-mem）；每个项目一个 SQLite 文件，全本机存储；提取队列用你已有的 Claude Code/Codex CLI 跑，设 provider=\"none\" 可完全离线"
+      },
       "skills": [
         {
           "name": "ICM 记忆协议",
@@ -49,6 +63,22 @@
         "linux": { "type": "github-release", "asset": "rtk-x86_64-unknown-linux-musl.tar.gz", "file": "rtk", "oneLiner": "从 GitHub Releases 下载 linux musl tar.gz 安装" }
       },
       "versionCmd": "rtk --version",
+      "usage": {
+        "quickStart": "rtk init -g",
+        "quickStartDesc": "全局安装 hook 到默认 agent（Claude Code / Copilot）；重启 agent 后自动生效，agent 无感知",
+        "commands": [
+          { "cmd": "rtk init -g", "desc": "全局初始化 Claude Code / Copilot（默认目标）" },
+          { "cmd": "rtk init -g --codex", "desc": "初始化 Codex (OpenAI)" },
+          { "cmd": "rtk init -g --agent cursor", "desc": "初始化 Cursor（也支持 windsurf/cline/kimi/trae 等 15+ agent）" },
+          { "cmd": "rtk git status", "desc": "压缩版 git status（agent 会自动被 hook 重写，无需手动）" },
+          { "cmd": "rtk read 文件名", "desc": "智能过滤读取文件（Read/Grep/Glob 内置工具不过 hook，需直接用 rtk）" },
+          { "cmd": "rtk test", "desc": "跑测试只显示失败项" },
+          { "cmd": "rtk diff", "desc": "超压缩 diff（只显示改动行）" },
+          { "cmd": "rtk grep 关键字", "desc": "紧凑 grep：按文件分组、去空白、截断" },
+          { "cmd": "rtk json 文件.json", "desc": "只看 JSON 结构不看值" }
+        ],
+        "notes": "原理：hook 拦截 Bash 工具调用并把输出压缩 50-90%（过滤/分组/截断/去重四策略）；内置工具（Read/Grep/Glob）不走 hook，读文件请直接用 rtk read/rtk grep/rtk find；不影响 prompt cache"
+      },
       "skills": [
         {
           "name": "RTK 指令注入",

@@ -138,7 +138,6 @@
 
 <div id="filters"></div>
 <div id="stats"></div>
-<div id="log-wrap"><div id="log-head" onclick="$('#log').style.display = $('#log').style.display==='none'?'block':'none'">🖥 安装日志（黑匣子）<span style="color:var(--muted);margin-left:auto">点击折叠/展开</span></div><div id="log"></div></div>
 <div id="grid"></div>
 <div id="pager"></div>
 </div><!-- /page-market -->
@@ -170,9 +169,9 @@
 <script>
 const $ = s => document.querySelector(s);
 const grid = $('#grid'), stats = $('#stats'), pager = $('#pager');
-const logWrap = $('#log-wrap'), logEl = $('#log');
+let registry = null, states = {}, skillStates = {}, curType = 'all', curCat = 'all', curPage = 1, keyword = '', PLATFORM = '';
 const PAGE_SIZE = 9;
-let registry = null, states = {}, skillStates = {}, curType = 'all', curCat = 'all', curPage = 1, keyword = '', PLATFORM = '', watchingLogs = null;
+let registry = null, states = {}, skillStates = {}, curType = 'all', curCat = 'all', curPage = 1, keyword = '', PLATFORM = '';
 
 const TYPE_NAMES = { 'cli-tool': 'CLI 工具', 'mcp': 'MCP 服务器', 'skill': '技能', 'hook': 'Hook', 'agent': 'Agent', 'extension': '扩展' };
 const TYPE_DESCS = {
@@ -207,21 +206,7 @@ function avatarHTML(t) {
   return `<div class="logo">${ghAvatar}${fallback}</div>`;
 }
 
-// ---------- 黑匣子 ----------
-function startLogWatch(id) {
-  stopLogWatch();
-  watchingLogs = id;
-  logWrap.classList.add('show');
-  logEl.style.display = 'block';
-  const tick = async () => {
-    if (watchingLogs !== id) return;
-    logEl.textContent = await window.aihub.installLogs(id) || '（暂无输出…）';
-    logEl.scrollTop = logEl.scrollHeight;
-    setTimeout(tick, 500);
-  };
-  tick();
-}
-function stopLogWatch() { watchingLogs = null; }
+// ---------- 日志中心（黑匣子已移除，安装时自动跳日志中心） ----------
 
 // ---------- 数据 ----------
 function filteredTools() {
@@ -335,6 +320,13 @@ async function openDetail(id) {
     <div class="m-section"><h3>🎯 解决什么问题</h3><p>${esc(t.solves || '—')}</p></div>
     <div class="m-section"><h3>⚡ 能力</h3><div class="caps">${(t.capabilities || []).map(c => `<span class="cap">${esc(c)}</span>`).join('')}</div></div>
     ${conflictHTML(t)}
+    ${t.usage ? `<div class="m-section"><h3>📖 使用说明</h3>
+      <p style="margin-bottom:8px"><b>快速开始：</b><span class="oneliner" style="display:inline-block;padding:4px 10px;margin-left:6px">${esc(t.usage.quickStart)}</span> — ${esc(t.usage.quickStartDesc || '')}</p>
+      <div style="display:flex;flex-direction:column;gap:6px;margin:8px 0">
+        ${(t.usage.commands || []).map(c => `<div style="display:flex;gap:10px;align-items:baseline"><code style="background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:3px 8px;font-size:12px;color:var(--green);white-space:nowrap;flex-shrink:0">${esc(c.cmd)}</code><span style="font-size:12px;color:var(--muted)">${esc(c.desc)}</span></div>`).join('')}
+      </div>
+      <p style="font-size:12px;color:var(--muted);background:var(--bg);border-left:3px solid var(--accent);padding:8px 10px;border-radius:0 6px 6px 0">💡 ${esc(t.usage.notes || '')}</p>
+    </div>` : ''}
     <div class="m-section"><h3>🔢 版本（${PLATFORM_NAMES[PLATFORM] || PLATFORM}）</h3><p>本地：${st.installed ? esc(st.localVersion || '?') : '未安装'} · 最新：${st.installed ? esc(st.latestVersion || '?') : '—'}</p></div>
     ${platInst.oneLiner ? `<div class="m-section"><h3>💾 安装方式</h3><div class="oneliner">${esc(platInst.oneLiner)}</div></div>` : ''}
     ${skills ? `<div class="m-section"><h3>🧩 配套技能（按平台显示启用状态）</h3>${skills}</div>` : ''}
@@ -357,7 +349,13 @@ async function openDetail(id) {
   });
 }
 function closeModal() { $('#modal-mask').classList.remove('show'); }
-function appendLog(text) { logWrap.classList.add('show'); logEl.textContent += (logEl.textContent ? '\n' : '') + text; logEl.scrollTop = logEl.scrollHeight; }
+// ---------- 日志跳转辅助（替代旧黑匣子） ----------
+function gotoLogs(tag) {
+  document.querySelector('[data-page="logs"]').click();
+  if (tag !== undefined) { logFilter.tag = tag; const s = $('#lg-tag'); if (s) s.value = tag; }
+  refreshLogs();
+}
+function appendLog(text) { /* 兼容占位：日志统一进日志中心 */ }
 
 // ---------- 事件 ----------
 grid.addEventListener('click', async e => {
@@ -369,13 +367,13 @@ grid.addEventListener('click', async e => {
     if (btn.dataset.install) {
       const t = tools.find(x => x.id === btn.dataset.install);
       btn.disabled = true; btn.textContent = '⏳ 执行中…';
-      startLogWatch(t.id);
-      appendLog(`▶ 开始为 ${PLATFORM_NAMES[PLATFORM]} 安装 ${t.name}（${t.install?.[PLATFORM]?.type || '?'}）`);
+      gotoLogs(`install:${t.id}`); // 自动跳日志中心看实时过程
       const r = await window.aihub.installTool(t);
-      logEl.textContent = await window.aihub.installLogs(t.id);
-      appendLog(`${r.ok ? '✅ 安装成功' : '❌ 安装失败'}${r.ok ? '' : ' —— 详情见上方日志'}\n`);
+      const ok = r.ok;
       states[t.id] = await window.aihub.inspectTool(t);
       render();
+      if ($('#page-logs').classList.contains('active')) refreshLogs();
+      if (!ok) { document.querySelector('[data-page="market"]').click(); alert(`安装失败，详情见日志中心\n\n${(r.output || r.error || '').slice(-500)}`); }
     } else if (btn.dataset.open) window.aihub.openExternal(btn.dataset.open);
     else if (btn.dataset.detailBtn) { openDetail(btn.dataset.detailBtn); return; }
     return;

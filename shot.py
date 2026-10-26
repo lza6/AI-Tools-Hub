@@ -9,6 +9,6 @@ with sync_playwright() as p:
     client = page.context.new_cdp_session(page)
     page.wait_for_timeout(3000)
     data = client.send('Page.captureScreenshot', {'format': 'png'})
-    with open(os.path.join(base, 'v3-5tools.png'), 'wb') as f:
+    with open(os.path.join(base, 'final-10tools.png'), 'wb') as f:
         f.write(base64.b64decode(data['data']))
     print('SHOT-OK', flush=True)

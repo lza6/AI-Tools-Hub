@@ -424,7 +424,7 @@ ipcMain.handle('update:install', () => { autoUpdater.quitAndInstall(); });
 
 function createWindow() {
   const win = new BrowserWindow({
-    width: 1240, height: 840, minWidth: 900,
+    width: 1280, height: 1010, minWidth: 900,
     title: 'AI-Tools-Hub · 你的AI军火库',
     backgroundColor: '#0d1117',
     autoHideMenuBar: true,

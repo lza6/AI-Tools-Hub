@@ -3,6 +3,259 @@
   "updatedAt": "2026-07-13",
   "tools": [
     {
+      "id": "stalemap",
+      "name": "StaleMap",
+      "fullName": "StaleMap 依赖新鲜度检测",
+      "type": "cli-tool",
+      "category": "AI 编码",
+      "repo": "Umair/stalemap",
+      "description": "告诉编码 agent 哪些依赖在它训练截止后已变更：diff 类型与 changelog，生成简短块写入 AGENTS.md/CLAUDE.md，防旧 API 幻觉。",
+      "capabilities": [
+        "训练截止后依赖变更检测",
+        "自动写 AGENTS.md/CLAUDE.md",
+        "changelog 提炼",
+        "npx 即用",
+        "GitHub Action 集成"
+      ],
+      "solves": "agent 拿训练时的旧 API 写新版本依赖的代码 → 运行时炸；stalemap 提前告诉它哪些变了。",
+      "homepage": "https://github.com/Umair/stalemap",
+      "conflicts": [],
+      "install": {
+        "windows": {
+          "type": "npx-run",
+          "pkg": "stalemap",
+          "args": [],
+          "oneLiner": "npx stalemap"
+        },
+        "macos": {
+          "type": "npx-run",
+          "pkg": "stalemap",
+          "args": [],
+          "oneLiner": "npx stalemap"
+        },
+        "linux": {
+          "type": "npx-run",
+          "pkg": "stalemap",
+          "args": [],
+          "oneLiner": "npx stalemap"
+        }
+      },
+      "versionCmd": "stalemap --version",
+      "versionProbe": {
+        "type": "npm",
+        "pkg": "stalemap"
+      },
+      "usage": {
+        "quickStart": "npx stalemap",
+        "quickStartDesc": "扫描 package.json 输出依赖新鲜度报告，可写入 AGENTS.md/CLAUDE.md",
+        "commands": [
+          {
+            "cmd": "npx stalemap",
+            "desc": "扫描当前项目依赖新鲜度"
+          },
+          {
+            "cmd": "npx stalemap --write",
+            "desc": "生成简报并写入 agent 指令文件"
+          }
+        ],
+        "notes": "npm 包名 stalemap；MIT；痛点直击 AI 编码最大幻觉源之一"
+      },
+      "skills": []
+    },
+    {
+      "id": "teamai-cli",
+      "name": "TeamAI-CLI",
+      "fullName": "TeamAI 技能同步与知识库",
+      "type": "cli-tool",
+      "category": "配置管理",
+      "repo": "Tencent/teamai-cli",
+      "description": "团队级 skills/规则/MCP/知识管理：跨 Claude Code/Codex/Cursor/CodeBuddy 等 7+ harness 同步，基于 Git 协作。",
+      "capabilities": [
+        "跨 7+ harness 同步",
+        "技能与规则集中管理",
+        "共享知识库",
+        "Git 驱动协作",
+        "腾讯出品"
+      ],
+      "solves": "团队每人每个 agent 各一套技能规则难维护；teamai 集中管、git 同步、一处更新处处生效。",
+      "homepage": "https://github.com/Tencent/teamai-cli",
+      "conflicts": [],
+      "install": {
+        "windows": {
+          "type": "npm",
+          "pkg": "teamai-cli",
+          "oneLiner": "npm i -g teamai-cli"
+        },
+        "macos": {
+          "type": "npm",
+          "pkg": "teamai-cli",
+          "oneLiner": "npm i -g teamai-cli"
+        },
+        "linux": {
+          "type": "npm",
+          "pkg": "teamai-cli",
+          "oneLiner": "npm i -g teamai-cli"
+        }
+      },
+      "versionCmd": "teamai --version",
+      "versionProbe": {
+        "type": "npm",
+        "pkg": "teamai-cli"
+      },
+      "usage": {
+        "quickStart": "teamai init",
+        "quickStartDesc": "初始化团队技能仓库并关联各 harness",
+        "commands": [
+          {
+            "cmd": "teamai init",
+            "desc": "初始化配置"
+          },
+          {
+            "cmd": "teamai sync",
+            "desc": "同步技能/规则到全部已配 harness"
+          }
+        ],
+        "notes": "npm 包 teamai-cli，命令 teamai；MIT"
+      },
+      "skills": []
+    },
+    {
+      "id": "unlazy",
+      "name": "Unlazy",
+      "fullName": "Unlazy 完成度纪律门禁",
+      "type": "skill",
+      "category": "工作流",
+      "repo": "Leonxlnx/unlazy",
+      "description": "AI agent 完成度纪律门禁技能：先写验收台账→执行已审查检查→复验返工→只报告有证据支撑的结论（反 lazy 反伪实现）。",
+      "capabilities": [
+        "验收台账先行",
+        "可运行门禁",
+        "复验返工闭环",
+        "证据化报告",
+        "并行编排支持"
+      ],
+      "solves": "agent 声称完成但实际没做完/没验证；unlazy 用可运行门禁强制纪律。",
+      "homepage": "https://github.com/Leonxlnx/unlazy",
+      "conflicts": [
+        "与 planning-with-files（计划持久化）互补：一个管执行状态一个管完成质量"
+      ],
+      "install": {
+        "windows": {
+          "type": "npm",
+          "pkg": "skills",
+          "args": [
+            "add",
+            "Leonxlnx/unlazy"
+          ],
+          "oneLiner": "npx skills add Leonxlnx/unlazy"
+        },
+        "macos": {
+          "type": "npm",
+          "pkg": "skills",
+          "args": [
+            "add",
+            "Leonxlnx/unlazy"
+          ],
+          "oneLiner": "npx skills add Leonxlnx/unlazy"
+        },
+        "linux": {
+          "type": "npm",
+          "pkg": "skills",
+          "args": [
+            "add",
+            "Leonxlnx/unlazy"
+          ],
+          "oneLiner": "npx skills add Leonxlnx/unlazy"
+        }
+      },
+      "versionCmd": "echo skill",
+      "versionProbe": {
+        "type": "github-tag"
+      },
+      "usage": {
+        "quickStart": "npx skills add Leonxlnx/unlazy",
+        "quickStartDesc": "Agent Skills 标准安装；装后 agent 在大任务上自动走台账→门禁→复验流程",
+        "commands": [
+          {
+            "cmd": "npx skills add Leonxlnx/unlazy",
+            "desc": "安装技能"
+          }
+        ],
+        "notes": "配套 Gate Contract 与 Security Boundary 文档见仓库"
+      },
+      "skills": [
+        {
+          "name": "Unlazy 完成度门禁",
+          "agents": [
+            "claude-code"
+          ],
+          "installCmd": "npx skills add Leonxlnx/unlazy",
+          "dir": "unlazy",
+          "keywords": [
+            "unlazy"
+          ],
+          "description": "完成度纪律技能"
+        }
+      ]
+    },
+    {
+      "id": "agentplay",
+      "name": "AgentPlay",
+      "fullName": "AgentPlay 会话回放",
+      "type": "cli-tool",
+      "category": "开发体验",
+      "repo": "Entelligence-AI/agentplay",
+      "description": "回放 agent 会话为地图+时间线：自动发现本机 Claude Code/Codex/Cursor 等会话，生成脱敏回放本地查看，零账号零 Key。",
+      "capabilities": [
+        "多 agent 会话发现",
+        "地图+时间线回放",
+        "自动脱敏",
+        "本地隐私优先",
+        "uvx 一条命令"
+      ],
+      "solves": "agent 会话历史散落难复盘；agentplay 一条命令可视化全部会话。",
+      "homepage": "https://github.com/Entelligence-AI/agentplay",
+      "conflicts": [],
+      "install": {
+        "windows": {
+          "type": "pip",
+          "pkg": "agentplay",
+          "oneLiner": "pip install agentplay 或 uvx agentplay"
+        },
+        "macos": {
+          "type": "pip",
+          "pkg": "agentplay",
+          "oneLiner": "pip install agentplay"
+        },
+        "linux": {
+          "type": "pip",
+          "pkg": "agentplay",
+          "oneLiner": "pip install agentplay"
+        }
+      },
+      "versionCmd": "agentplay --version",
+      "versionProbe": {
+        "type": "npm",
+        "pkg": "agentplay"
+      },
+      "usage": {
+        "quickStart": "uvx agentplay",
+        "quickStartDesc": "一条命令发现本机会话并打开本地回放视图；AGENTPLAY_NO_NETWORK=1 可完全离线",
+        "commands": [
+          {
+            "cmd": "uvx agentplay",
+            "desc": "无需安装直接跑（PyPI 有 agentplay 0.2.6）"
+          },
+          {
+            "cmd": "AGENTPLAY_NO_NETWORK=1 uvx agentplay",
+            "desc": "完全离线模式"
+          }
+        ],
+        "notes": "唯一网络调用是查看器里可选的邮件订阅，可关"
+      },
+      "skills": []
+    },
+    {
       "id": "sqlite-vec",
       "name": "SQLite-Vec",
       "fullName": "sqlite-vec 向量检索扩展",
@@ -10,24 +263,54 @@
       "category": "代码图谱",
       "repo": "asg017/sqlite-vec",
       "description": "纯 C 的 SQLite 向量检索扩展：一行 SQL 给 SQLite 加向量搜索（vec0 虚拟表），AI 写本地 RAG / agent 记忆 / 语义搜索的标配组件。",
-      "capabilities": ["SQLite 向量搜索", "纯 C 零依赖", "全平台含 WASM", "多语言 binding", "一行安装"],
+      "capabilities": [
+        "SQLite 向量搜索",
+        "纯 C 零依赖",
+        "全平台含 WASM",
+        "多语言 binding",
+        "一行安装"
+      ],
       "solves": "想做本地 RAG 或 agent 记忆又要起 Qdrant/Milvus？sqlite-vec 让 SQLite 直接存向量做检索，单文件方案。",
       "homepage": "https://github.com/asg017/sqlite-vec",
       "conflicts": [],
       "install": {
-        "windows": { "type": "pip", "pkg": "sqlite-vec", "oneLiner": "pip install sqlite-vec（Node: npm install sqlite-vec）" },
-        "macos": { "type": "pip", "pkg": "sqlite-vec", "oneLiner": "pip install sqlite-vec" },
-        "linux": { "type": "pip", "pkg": "sqlite-vec", "oneLiner": "pip install sqlite-vec" }
+        "windows": {
+          "type": "pip",
+          "pkg": "sqlite-vec",
+          "oneLiner": "pip install sqlite-vec（Node: npm install sqlite-vec）"
+        },
+        "macos": {
+          "type": "pip",
+          "pkg": "sqlite-vec",
+          "oneLiner": "pip install sqlite-vec"
+        },
+        "linux": {
+          "type": "pip",
+          "pkg": "sqlite-vec",
+          "oneLiner": "pip install sqlite-vec"
+        }
       },
       "versionCmd": "python -c \"import sqlite_vec; print(sqlite_vec.__version__)\"",
-      "versionProbe": { "type": "npm", "pkg": "sqlite-vec" },
+      "versionProbe": {
+        "type": "npm",
+        "pkg": "sqlite-vec"
+      },
       "usage": {
         "quickStart": "pip install sqlite-vec",
         "quickStartDesc": "Python 侧一行装；加载扩展后 CREATE VIRTUAL TABLE ... USING vec0 即有向量表",
         "commands": [
-          { "cmd": "pip install sqlite-vec", "desc": "Python 安装（含 load 扩展 API）" },
-          { "cmd": "npm install sqlite-vec", "desc": "Node.js 安装（better-sqlite3 配套）" },
-          { "cmd": "CREATE VIRTUAL TABLE vec_items USING vec0(embedding float[768])", "desc": "建向量虚拟表（768 维示例）" }
+          {
+            "cmd": "pip install sqlite-vec",
+            "desc": "Python 安装（含 load 扩展 API）"
+          },
+          {
+            "cmd": "npm install sqlite-vec",
+            "desc": "Node.js 安装（better-sqlite3 配套）"
+          },
+          {
+            "cmd": "CREATE VIRTUAL TABLE vec_items USING vec0(embedding float[768])",
+            "desc": "建向量虚拟表（768 维示例）"
+          }
         ],
         "notes": "icm 的语义检索底层、claude-mem 的存储都可以配它；SQLite 单文件方案与向量库服务端方案取一即可"
       },
@@ -41,24 +324,56 @@
       "category": "爬虫",
       "repo": "unclecode/crawl4ai",
       "description": "LLM 友好爬虫（100k+ star 生态位最强）：网页→Markdown/JSON 直接喂 LLM，带官方 MCP server 可挂进 Claude Code。",
-      "capabilities": ["网页转 Markdown/JSON", "官方 MCP server", "JS 渲染抓取", "Docker 可选", "#1 trending"],
+      "capabilities": [
+        "网页转 Markdown/JSON",
+        "官方 MCP server",
+        "JS 渲染抓取",
+        "Docker 可选",
+        "#1 trending"
+      ],
       "solves": "给 LLM 喂网页数据要自己处理正文提取/清洗；crawl4ai 输出即用，还带 MCP 让 agent 直接调用。",
       "homepage": "https://github.com/unclecode/crawl4ai",
-      "conflicts": ["与 Scrapling（自适应反爬）定位不同：crawl4ai 重 LLM 输出，Scrapling 重反爬"],
+      "conflicts": [
+        "与 Scrapling（自适应反爬）定位不同：crawl4ai 重 LLM 输出，Scrapling 重反爬"
+      ],
       "install": {
-        "windows": { "type": "pip", "pkg": "crawl4ai", "oneLiner": "pip install -U crawl4ai 然后 crawl4ai-setup" },
-        "macos": { "type": "pip", "pkg": "crawl4ai", "oneLiner": "pip install -U crawl4ai" },
-        "linux": { "type": "pip", "pkg": "crawl4ai", "oneLiner": "pip install -U crawl4ai" }
+        "windows": {
+          "type": "pip",
+          "pkg": "crawl4ai",
+          "oneLiner": "pip install -U crawl4ai 然后 crawl4ai-setup"
+        },
+        "macos": {
+          "type": "pip",
+          "pkg": "crawl4ai",
+          "oneLiner": "pip install -U crawl4ai"
+        },
+        "linux": {
+          "type": "pip",
+          "pkg": "crawl4ai",
+          "oneLiner": "pip install -U crawl4ai"
+        }
       },
       "versionCmd": "crawl4ai --version",
-      "versionProbe": { "type": "npm", "pkg": "crawl4ai" },
+      "versionProbe": {
+        "type": "npm",
+        "pkg": "crawl4ai"
+      },
       "usage": {
         "quickStart": "pip install -U crawl4ai && crawl4ai-setup",
         "quickStartDesc": "pip 装完后跑 crawl4ai-setup 配置浏览器内核；Python 两行代码或挂 MCP 给 agent 用",
         "commands": [
-          { "cmd": "pip install -U crawl4ai", "desc": "安装主库" },
-          { "cmd": "crawl4ai-setup", "desc": "自动配置 Playwright 浏览器内核" },
-          { "cmd": "crawl4ai-doctor", "desc": "诊断安装环境问题" }
+          {
+            "cmd": "pip install -U crawl4ai",
+            "desc": "安装主库"
+          },
+          {
+            "cmd": "crawl4ai-setup",
+            "desc": "自动配置 Playwright 浏览器内核"
+          },
+          {
+            "cmd": "crawl4ai-doctor",
+            "desc": "诊断安装环境问题"
+          }
         ],
         "notes": "首次 setup 会下载浏览器（~200MB）；MCP 模式可让 Claude Code 直接抓网页当上下文"
       },
@@ -72,23 +387,63 @@
       "category": "工作流",
       "repo": "dzhng/skills",
       "description": "22 个领域无关工程技能：『独立可验证切片』自主开发循环（spec→slice→verify），与 superpowers/caveman 无重叠。",
-      "capabilities": ["22 个工程技能", "spec→slice→verify 循环", "自主开发方法论", "Agent Skills 标准", "按需选装"],
+      "capabilities": [
+        "22 个工程技能",
+        "spec→slice→verify 循环",
+        "自主开发方法论",
+        "Agent Skills 标准",
+        "按需选装"
+      ],
       "solves": "superpowers 重流程沟通、caveman 重压缩；dzhng 专注『把大任务切成可独立验证的切片再自主跑』。",
       "homepage": "https://github.com/dzhng/skills",
-      "conflicts": ["与 superpowers 部分场景重叠（自主开发循环），可共存按需触发"],
+      "conflicts": [
+        "与 superpowers 部分场景重叠（自主开发循环），可共存按需触发"
+      ],
       "install": {
-        "windows": { "type": "npm", "pkg": "skills", "args": ["add", "dzhng/skills"], "oneLiner": "npx skills add dzhng/skills（加 --list 按需选装）" },
-        "macos": { "type": "npm", "pkg": "skills", "args": ["add", "dzhng/skills"], "oneLiner": "npx skills add dzhng/skills" },
-        "linux": { "type": "npm", "pkg": "skills", "args": ["add", "dzhng/skills"], "oneLiner": "npx skills add dzhng/skills" }
+        "windows": {
+          "type": "npm",
+          "pkg": "skills",
+          "args": [
+            "add",
+            "dzhng/skills"
+          ],
+          "oneLiner": "npx skills add dzhng/skills（加 --list 按需选装）"
+        },
+        "macos": {
+          "type": "npm",
+          "pkg": "skills",
+          "args": [
+            "add",
+            "dzhng/skills"
+          ],
+          "oneLiner": "npx skills add dzhng/skills"
+        },
+        "linux": {
+          "type": "npm",
+          "pkg": "skills",
+          "args": [
+            "add",
+            "dzhng/skills"
+          ],
+          "oneLiner": "npx skills add dzhng/skills"
+        }
       },
       "versionCmd": "echo skills",
-      "versionProbe": { "type": "github-tag" },
+      "versionProbe": {
+        "type": "github-tag"
+      },
       "usage": {
         "quickStart": "npx skills add dzhng/skills",
         "quickStartDesc": "Agent Skills 标准安装（71 agent 兼容）；技能多建议先 --list 看清单再选装",
         "commands": [
-          { "cmd": "npx skills add dzhng/skills", "desc": "安装全部 22 个技能" },
-          { "cmd": "npx skills add dzhng/skills --list", "desc": "查看技能清单按需选装" }
+          {
+            "cmd": "npx skills add dzhng/skills",
+            "desc": "安装全部 22 个技能"
+          },
+          {
+            "cmd": "npx skills add dzhng/skills --list",
+            "desc": "查看技能清单按需选装"
+          }
         ],
         "notes": "skills.sh 收录；全装会占上下文，推荐挑 3-5 个常用的"
       },
@@ -102,23 +457,50 @@
       "category": "安全",
       "repo": "NVIDIA/SkillSpector",
       "description": "NVIDIA 出品的技能安全扫描器：安装前扫描 Agent Skills 的 71 种漏洞模式并给风险评分，市场安全位神器。",
-      "capabilities": ["71 漏洞模式检测", "技能风险评分", "安装前审计", "NVIDIA 背书", "CI 可集成"],
+      "capabilities": [
+        "71 漏洞模式检测",
+        "技能风险评分",
+        "安装前审计",
+        "NVIDIA 背书",
+        "CI 可集成"
+      ],
       "solves": "技能市场时代恶意/带洞技能泛滥；装前扫一遍，风险评分决定要不要装。",
       "homepage": "https://github.com/NVIDIA/SkillSpector",
       "conflicts": [],
       "install": {
-        "windows": { "type": "pip", "pkg": "git+https://github.com/NVIDIA/SkillSpector.git", "oneLiner": "pip install git+https://github.com/NVIDIA/SkillSpector.git" },
-        "macos": { "type": "pip", "pkg": "git+https://github.com/NVIDIA/SkillSpector.git", "oneLiner": "pip install git+https://github.com/NVIDIA/SkillSpector.git" },
-        "linux": { "type": "pip", "pkg": "git+https://github.com/NVIDIA/SkillSpector.git", "oneLiner": "pip install git+https://github.com/NVIDIA/SkillSpector.git" }
+        "windows": {
+          "type": "pip",
+          "pkg": "git+https://github.com/NVIDIA/SkillSpector.git",
+          "oneLiner": "pip install git+https://github.com/NVIDIA/SkillSpector.git"
+        },
+        "macos": {
+          "type": "pip",
+          "pkg": "git+https://github.com/NVIDIA/SkillSpector.git",
+          "oneLiner": "pip install git+https://github.com/NVIDIA/SkillSpector.git"
+        },
+        "linux": {
+          "type": "pip",
+          "pkg": "git+https://github.com/NVIDIA/SkillSpector.git",
+          "oneLiner": "pip install git+https://github.com/NVIDIA/SkillSpector.git"
+        }
       },
       "versionCmd": "skillspector --version",
-      "versionProbe": { "type": "github-tag", "stripPrefix": "v" },
+      "versionProbe": {
+        "type": "github-tag",
+        "stripPrefix": "v"
+      },
       "usage": {
         "quickStart": "skillspector scan <技能目录>",
         "quickStartDesc": "扫描任意 SKILL.md 目录输出漏洞报告+风险评分",
         "commands": [
-          { "cmd": "skillspector scan ./my-skill/", "desc": "扫描技能目录" },
-          { "cmd": "skillspector scan --format json ./x/ > report.json", "desc": "JSON 输出接 CI" }
+          {
+            "cmd": "skillspector scan ./my-skill/",
+            "desc": "扫描技能目录"
+          },
+          {
+            "cmd": "skillspector scan --format json ./x/ > report.json",
+            "desc": "JSON 输出接 CI"
+          }
         ],
         "notes": "与 AI-Tools-Hub 天然互补：我们上架技能时用它先扫一遍（未来可内置进审核流）"
       },
@@ -132,23 +514,63 @@
       "category": "工作流",
       "repo": "membranedev/application-skills",
       "description": "3000+ SaaS 集成技能库：GitHub/Jira/Slack/Notion 等 SaaS 的操作技能，凭据由 Membrane 托管，agent 直接替你操作 SaaS。",
-      "capabilities": ["3000+ SaaS 集成", "凭据托管", "Agent Skills 标准", "按需单装", "主流 agent 支持"],
+      "capabilities": [
+        "3000+ SaaS 集成",
+        "凭据托管",
+        "Agent Skills 标准",
+        "按需单装",
+        "主流 agent 支持"
+      ],
       "solves": "让 agent 操作 SaaS 要自己写 API 对接；装对应技能即获得该 SaaS 的操作能力。",
       "homepage": "https://github.com/membranedev/application-skills",
-      "conflicts": ["全装会吃大量上下文——务必按需单装"],
+      "conflicts": [
+        "全装会吃大量上下文——务必按需单装"
+      ],
       "install": {
-        "windows": { "type": "npm", "pkg": "skills", "args": ["add", "membranedev/application-skills"], "oneLiner": "npx skills add membranedev/application-skills（按需单装）" },
-        "macos": { "type": "npm", "pkg": "skills", "args": ["add", "membranedev/application-skills"], "oneLiner": "npx skills add membranedev/application-skills" },
-        "linux": { "type": "npm", "pkg": "skills", "args": ["add", "membranedev/application-skills"], "oneLiner": "npx skills add membranedev/application-skills" }
+        "windows": {
+          "type": "npm",
+          "pkg": "skills",
+          "args": [
+            "add",
+            "membranedev/application-skills"
+          ],
+          "oneLiner": "npx skills add membranedev/application-skills（按需单装）"
+        },
+        "macos": {
+          "type": "npm",
+          "pkg": "skills",
+          "args": [
+            "add",
+            "membranedev/application-skills"
+          ],
+          "oneLiner": "npx skills add membranedev/application-skills"
+        },
+        "linux": {
+          "type": "npm",
+          "pkg": "skills",
+          "args": [
+            "add",
+            "membranedev/application-skills"
+          ],
+          "oneLiner": "npx skills add membranedev/application-skills"
+        }
       },
       "versionCmd": "echo skills",
-      "versionProbe": { "type": "github-tag" },
+      "versionProbe": {
+        "type": "github-tag"
+      },
       "usage": {
         "quickStart": "npx skills add membranedev/application-skills --list",
         "quickStartDesc": "先 --list 看 3000+ 清单，挑你要的 SaaS 单装（如 --skill github）",
         "commands": [
-          { "cmd": "npx skills add membranedev/application-skills --list", "desc": "浏览全部集成清单" },
-          { "cmd": "npx skills add membranedev/application-skills --skill <名字>", "desc": "单装某个 SaaS 集成" }
+          {
+            "cmd": "npx skills add membranedev/application-skills --list",
+            "desc": "浏览全部集成清单"
+          },
+          {
+            "cmd": "npx skills add membranedev/application-skills --skill <名字>",
+            "desc": "单装某个 SaaS 集成"
+          }
         ],
         "notes": "凭据走 Membrane 托管（需注册其平台）；对个人用户 opendev 模式免费额度够用"
       },
@@ -162,24 +584,56 @@
       "category": "AI 编码",
       "repo": "QwenLM/qwen-code",
       "description": "Qwen 官方 AI 编码 CLI（CC 式体验）：Apache-2.0，接任意 OpenAI 兼容 API，Claude Code 的免费/国产模型替代。",
-      "capabilities": ["CC 式交互体验", "任意 OpenAI 兼容 API", "Apache-2.0 开源", "Qwen 官方维护", "npm 一键装"],
+      "capabilities": [
+        "CC 式交互体验",
+        "任意 OpenAI 兼容 API",
+        "Apache-2.0 开源",
+        "Qwen 官方维护",
+        "npm 一键装"
+      ],
       "solves": "没有 Claude 订阅想用 CC 体验？qwen-code 接免费 Qwen 额度或任意 OpenAI 兼容端点。",
       "homepage": "https://github.com/QwenLM/qwen-code",
-      "conflicts": ["与 Claude Code 是替代关系而非互补（可并存按项目切换）"],
+      "conflicts": [
+        "与 Claude Code 是替代关系而非互补（可并存按项目切换）"
+      ],
       "install": {
-        "windows": { "type": "npm", "pkg": "@qwen-code/qwen-code", "oneLiner": "npm install -g @qwen-code/qwen-code@latest" },
-        "macos": { "type": "npm", "pkg": "@qwen-code/qwen-code", "oneLiner": "npm install -g @qwen-code/qwen-code@latest" },
-        "linux": { "type": "npm", "pkg": "@qwen-code/qwen-code", "oneLiner": "npm install -g @qwen-code/qwen-code@latest" }
+        "windows": {
+          "type": "npm",
+          "pkg": "@qwen-code/qwen-code",
+          "oneLiner": "npm install -g @qwen-code/qwen-code@latest"
+        },
+        "macos": {
+          "type": "npm",
+          "pkg": "@qwen-code/qwen-code",
+          "oneLiner": "npm install -g @qwen-code/qwen-code@latest"
+        },
+        "linux": {
+          "type": "npm",
+          "pkg": "@qwen-code/qwen-code",
+          "oneLiner": "npm install -g @qwen-code/qwen-code@latest"
+        }
       },
       "versionCmd": "qwen --version",
-      "versionProbe": { "type": "npm", "pkg": "@qwen-code/qwen-code" },
+      "versionProbe": {
+        "type": "npm",
+        "pkg": "@qwen-code/qwen-code"
+      },
       "usage": {
         "quickStart": "qwen",
         "quickStartDesc": "装完在项目目录跑 qwen 进入交互；首次需配 OPENAI_API_KEY/OPENAI_BASE_URL 或 Qwen OAuth",
         "commands": [
-          { "cmd": "qwen", "desc": "项目目录启动交互会话" },
-          { "cmd": "qwen -p \"查询\"", "desc": "非交互模式跑一条命令" },
-          { "cmd": "export OPENAI_BASE_URL=...", "desc": "接任意 OpenAI 兼容端点" }
+          {
+            "cmd": "qwen",
+            "desc": "项目目录启动交互会话"
+          },
+          {
+            "cmd": "qwen -p \"查询\"",
+            "desc": "非交互模式跑一条命令"
+          },
+          {
+            "cmd": "export OPENAI_BASE_URL=...",
+            "desc": "接任意 OpenAI 兼容端点"
+          }
         ],
         "notes": "注意 npm 包名是 @qwen-code/qwen-code，命令名是 qwen；与 icm/rtk 等工具完全兼容（它们不挑 agent）"
       },
@@ -193,25 +647,58 @@
       "category": "AI 编码",
       "repo": "Aider-AI/aider",
       "description": "最成熟的 AI 结对编程 CLI：git 感知（每改动自动 commit）、repo map 全库理解、多模型支持，社区口碑最好。",
-      "capabilities": ["git 自动提交", "repo map 全库理解", "多模型支持", "语音输入", "成熟生态"],
+      "capabilities": [
+        "git 自动提交",
+        "repo map 全库理解",
+        "多模型支持",
+        "语音输入",
+        "成熟生态"
+      ],
       "solves": "CC 之外的另一极：aider 的 git 感知和 repo map 在大型仓库上理解力独档，且完全开源可接本地模型。",
       "homepage": "https://github.com/Aider-AI/aider",
       "conflicts": [],
       "install": {
-        "windows": { "type": "pip", "pkg": "aider-install", "oneLiner": "python -m pip install aider-install 然后 aider-install" },
-        "macos": { "type": "pip", "pkg": "aider-install", "oneLiner": "python -m pip install aider-install && aider-install" },
-        "linux": { "type": "pip", "pkg": "aider-install", "oneLiner": "python -m pip install aider-install && aider-install" }
+        "windows": {
+          "type": "pip",
+          "pkg": "aider-install",
+          "oneLiner": "python -m pip install aider-install 然后 aider-install"
+        },
+        "macos": {
+          "type": "pip",
+          "pkg": "aider-install",
+          "oneLiner": "python -m pip install aider-install && aider-install"
+        },
+        "linux": {
+          "type": "pip",
+          "pkg": "aider-install",
+          "oneLiner": "python -m pip install aider-install && aider-install"
+        }
       },
       "versionCmd": "aider --version",
-      "versionProbe": { "type": "npm", "pkg": "aider-chat" },
+      "versionProbe": {
+        "type": "npm",
+        "pkg": "aider-chat"
+      },
       "usage": {
         "quickStart": "aider",
         "quickStartDesc": "装完在 git 仓库里跑 aider；需配 ANTHROPIC_API_KEY 或 OPENAI_API_KEY（或 Ollama 本地模型）",
         "commands": [
-          { "cmd": "aider", "desc": "git 仓库内启动结对会话" },
-          { "cmd": "aider --model sonnet", "desc": "指定模型" },
-          { "cmd": "aider --message \"修复登录bug\"", "desc": "非交互单任务" },
-          { "cmd": "/map", "desc": "会话内查看 repo map" }
+          {
+            "cmd": "aider",
+            "desc": "git 仓库内启动结对会话"
+          },
+          {
+            "cmd": "aider --model sonnet",
+            "desc": "指定模型"
+          },
+          {
+            "cmd": "aider --message \"修复登录bug\"",
+            "desc": "非交互单任务"
+          },
+          {
+            "cmd": "/map",
+            "desc": "会话内查看 repo map"
+          }
         ],
         "notes": "pip 包名 aider-chat，安装器是 aider-install；每处改动自动 git commit，可用 /undo 回滚"
       },

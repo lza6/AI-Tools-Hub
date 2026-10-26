@@ -1,0 +1,48 @@
+{
+  "name": "ai-tools-hub",
+  "version": "1.0.0",
+  "description": "你的AI军火库 - CLI 工具 / MCP / 技能一站式安装与更新",
+  "main": "electron/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win portable --publish never",
+    "release": "electron-builder --win portable --publish always"
+  },
+  "build": {
+    "appId": "com.lza6.ai-tools-hub",
+    "productName": "AI-Tools-Hub",
+    "files": [
+      "electron/**/*",
+      "src/**/*",
+      "registry/**/*"
+    ],
+    "win": {
+      "target": [
+        "portable",
+        "nsis"
+      ]
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lza6/AI-Tools-Hub.git"
+  },
+  "keywords": [
+    "ai",
+    "mcp",
+    "cli",
+    "skills",
+    "marketplace"
+  ],
+  "author": "lza6",
+  "license": "MIT",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/lza6/AI-Tools-Hub/issues"
+  },
+  "homepage": "https://github.com/lza6/AI-Tools-Hub#readme",
+  "devDependencies": {
+    "electron": "^45.0.0",
+    "electron-builder": "^26.18.0"
+  }
+}

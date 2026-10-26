@@ -4,3 +4,7 @@ release/
 
 # graft's local graph cache — regenerable, not committed (run `graft build`).
 /graft/
+
+shot.py
+*.png
+!assets/*.png

@@ -98,9 +98,26 @@ async function httpGetRetry(url, encoding, retries = 2) {
 
 function runCmd(cmd, args = [], timeout = 30000) {
   return new Promise(resolve => {
-    execFile(cmd, args, { timeout, windowsHide: true, shell: false }, (err, stdout, stderr) => {
-      resolve({ ok: !err, output: (stdout || stderr || '').trim(), error: err ? String(err.message) : null });
+    // Windows: npm 全局命令是 .cmd shim（qwen.cmd 等），execFile 不走 shell 解析不到。
+    // 但 shell:true + args 拼接会让带引号的参数（python -c "..."）被吃掉引号，
+    // 且 npm.cmd 在某些 Node 版本 spawn EINVAL 同步抛出 → 必须整体 try-catch。
+    // 策略：显式 .cmd/.bat 用 shell:true；其余先直接 spawn，EINVAL/ENOENT 时降级 shell 重试一次。
+    const isScript = /\.(cmd|bat)$/i.test(cmd);
+    const attempt = (useShell) => new Promise(res => {
+      try {
+        execFile(cmd, args, { timeout, windowsHide: true, shell: useShell }, (err, stdout, stderr) => {
+          res({ ok: !err, output: (stdout || stderr || '').trim(), error: err ? String(err.message) : null });
+        });
+      } catch (e) {
+        res({ ok: false, output: '', error: String(e.message), fatal: true });
+      }
     });
+    (async () => {
+      let r = await attempt(isScript);
+      // EINVAL 同步抛出或 ENOENT（qwen.cmd 这类 shell shim）→ shell 重试一次
+      if (!isScript && (r.fatal || /ENOENT|EINVAL/.test(r.error || ''))) r = await attempt(true);
+      resolve({ ok: r.ok, output: r.output || '', error: r.error || null });
+    })();
   });
 }
 
@@ -143,20 +160,31 @@ async function probeLatest(tool) {
 async function inspectTool(tool) {
   const bin = tool.id;
   const probe = tool.versionProbe || {};
-  // versionProbe.type=npm 的工具可能没有本地二进制（如 npx 直跑类），detect 放行
-  const [detect, ver] = await Promise.all([
-    probe.type === 'npm' ? Promise.resolve({ ok: true, output: '', error: null }) :
-      (IS_WIN ? runCmd('where.exe', [bin]) : runCmd('which', [bin])),
-    runCmd(tool.versionCmd.split(' ')[0], tool.versionCmd.split(' ').slice(1)),
+  // 已装判定四路（任一命中即已装，修复"明明装了却显示未装"）：
+  // A. PATH 探测（where/which）
+  // B. versionCmd 直跑成功且输出含版本号（覆盖 pyvenv 报错等 where 找到但版本命令异常的场景）
+  // C. versionProbe.type=npm：npm ls -g 查全局包（npm 包名 ≠ 命令名，如 @qwen-code/qwen-code → qwen）
+  // D. versionCmd 首词是 npx/echo 等非二进制形态：只跑 versionCmd 看退出码
+  const versionArgs = tool.versionCmd.split(' ');
+  const [detect, ver, npmInstalled] = await Promise.all([
+    IS_WIN ? runCmd('where.exe', [bin]) : runCmd('which', [bin]),
+    runCmd(versionArgs[0], versionArgs.slice(1)),
+    probe.type === 'npm'
+      ? runCmd(process.platform === 'win32' ? 'npm.cmd' : 'npm', ['ls', '-g', probe.pkg, '--depth', '0'])
+      : Promise.resolve({ ok: false, output: '', error: null }),
   ]);
-  const installed = detect.ok && ver.ok;
-  const localVersion = installed ? extractVersion(ver.output) : null;
-  logger.debug(`inspect:${bin}`, `where=${detect.ok}, version=${localVersion || '未检测到'}${installed ? '' : ` (raw: ${(ver.output || detect.error || '').slice(0, 200)})`}`);
+  const verHasVersion = ver.ok && extractVersion(ver.output) !== null;
+  const installed = detect.ok || verHasVersion || npmInstalled.ok; // where 命中即已装（版本可能取不到）
+  // 版本优先级: versionCmd 输出 > npm ls 输出 > 无
+  const localVersion = verHasVersion ? extractVersion(ver.output)
+    : npmInstalled.ok ? extractVersion(npmInstalled.output) : null;
+  logger.debug(`inspect:${bin}`, `where=${detect.ok}, verOk=${ver.ok}, verHasV=${verHasVersion}, npm=${npmInstalled.ok} → installed=${installed}, version=${localVersion || '未检出'}${installed ? '' : ` (raw: ${(ver.output || detect.error || '').slice(0, 150)})`}`);
   let latestVersion = null, hasUpdate = false;
   if (installed) {
     try {
       latestVersion = await probeLatest(tool);
       latestVersion = extractVersion(latestVersion) || latestVersion;
+      // 本地版本取不到时（如 versionCmd 异常但 npm 装了）不算可更新，避免误导
       hasUpdate = !!(localVersion && latestVersion && latestVersion !== localVersion);
     } catch (e) { logger.warn(`inspect:${bin}`, `更新检查失败: ${e.message}`); }
   }
@@ -256,13 +284,28 @@ function logInstall(id, line) {
 function runCmdLogged(id, cmd, args, timeout = 600000) {
   logInstall(id, `$ ${cmd} ${args.join(' ')}`);
   return new Promise(resolve => {
-    const child = execFile(cmd, args, { timeout, windowsHide: true, maxBuffer: 10 * 1024 * 1024 }, (err, stdout, stderr) => {
-      const out = (stdout || '').trim(), errOut = (stderr || '').trim();
-      if (out) logInstall(id, out);
-      if (errOut) logInstall(id, `[stderr] ${errOut}`);
-      if (err) logInstall(id, `[exit 错误] ${err.message}`);
-      resolve({ ok: !err, output: [out, errOut].filter(Boolean).join('\n'), error: err ? String(err.message) : null });
-    });
+    let child;
+    try {
+      child = execFile(cmd, args, { timeout, windowsHide: true, maxBuffer: 10 * 1024 * 1024 }, (err, stdout, stderr) => {
+        const out = (stdout || '').trim(), errOut = (stderr || '').trim();
+        if (out) logInstall(id, out);
+        if (errOut) logInstall(id, `[stderr] ${errOut}`);
+        if (err) logInstall(id, `[exit 错误] ${err.message}`);
+        resolve({ ok: !err, output: [out, errOut].filter(Boolean).join('\n'), error: err ? String(err.message) : null });
+      });
+    } catch (e) {
+      // spawn 同步抛出（npm.cmd EINVAL 等）→ shell 重试
+      try {
+        child = execFile(cmd, args, { timeout, windowsHide: true, maxBuffer: 10 * 1024 * 1024, shell: true }, (err, stdout, stderr) => {
+          const out = (stdout || '').trim(), errOut = (stderr || '').trim();
+          if (err) logInstall(id, `[exit 错误] ${err.message}`);
+          resolve({ ok: !err, output: [out, errOut].filter(Boolean).join('\n'), error: err ? String(err.message) : null });
+        });
+      } catch (e2) {
+        logInstall(id, `[spawn 失败] ${e.message} / ${e2.message}`);
+        resolve({ ok: false, output: '', error: String(e2.message) });
+      }
+    }
   });
 }
 

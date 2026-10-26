@@ -234,7 +234,7 @@ function filteredTools() {
 function badge(st) {
   if (!st) return `<span class="badge no">检测中…</span>`;
   if (st.hasUpdate) return `<span class="badge update">⬆ ${esc(st.latestVersion)}</span>`;
-  if (st.installed) return `<span class="badge ok">✔ ${esc(st.localVersion)}</span>`;
+  if (st.installed) return `<span class="badge ok">✔ ${esc(st.localVersion || '已装')}</span>`;
   return `<span class="badge no">未安装</span>`;
 }
 function skillLine(t) {

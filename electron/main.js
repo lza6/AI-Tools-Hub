@@ -4,6 +4,25 @@ const { existsSync, readdirSync, readFileSync, writeFileSync } = require('fs');
 const https = require('https');
 const path = require('path');
 const os = require('os');
+const { autoUpdater } = require('electron-updater');
+
+// ------- 应用自更新（GitHub Releases）-------
+function setupAutoUpdater(win) {
+  autoUpdater.setFeedURL({ provider: 'github', owner: 'lza6', repo: 'AI-Tools-Hub' });
+  autoUpdater.autoDownload = false; // 用户点"立即更新"再下载
+
+  autoUpdater.on('update-available', (info) => {
+    win.webContents.send('update:available', { version: info.version, releaseNotes: info.releaseNotes || '' });
+  });
+  autoUpdater.on('update-not-available', () => win.webContents.send('update:not-available'));
+  autoUpdater.on('download-progress', (p) => {
+    win.webContents.send('update:progress', { percent: Math.round(p.percent), mb: (p.transferred / 1048576).toFixed(1), total: (p.total / 1048576).toFixed(1) });
+  });
+  autoUpdater.on('update-downloaded', () => win.webContents.send('update:downloaded'));
+  autoUpdater.on('error', (e) => win.webContents.send('update:error', String(e)));
+
+  autoUpdater.checkForUpdates().catch(() => {}); // 启动即静默检查
+}
 
 const REGISTRY_URL = 'https://raw.githubusercontent.com/lza6/AI-Tools-Hub/main/registry/manifest.json';
 const IS_WIN = process.platform === 'win32';
@@ -169,6 +188,9 @@ ipcMain.handle('skill:install', async (_e, tool, skill) => {
 
 ipcMain.handle('shell:open', (_e, url) => shell.openExternal(url));
 ipcMain.handle('app:platform', () => process.platform);
+ipcMain.handle('app:version', () => app.getVersion());
+ipcMain.handle('update:download', () => autoUpdater.downloadUpdate());
+ipcMain.handle('update:install', () => { autoUpdater.quitAndInstall(); });
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -180,6 +202,7 @@ function createWindow() {
     webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false },
   });
   win.loadFile(path.join(__dirname, '..', 'src', 'index.html'));
+  setupAutoUpdater(win);
 }
 
 app.whenReady().then(() => {

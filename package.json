@@ -19,9 +19,38 @@
       "assets/logo-512.png",
       "assets/icon.ico"
     ],
-    "mac": { "icon": "assets/logo-512.png", "target": [{ "target": "dmg", "arch": ["x64", "arm64"] }] },
-    "linux": { "icon": "assets/logo-512.png", "target": ["AppImage", "deb"], "category": "Development" },
-    "win": { "icon": "assets/icon.ico", "target": ["portable", "nsis"] }
+    "mac": {
+      "icon": "assets/logo-512.png",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ]
+    },
+    "linux": {
+      "icon": "assets/logo-512.png",
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Development"
+    },
+    "win": {
+      "icon": "assets/icon.ico",
+      "target": [
+        "portable",
+        "nsis"
+      ]
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "lza6",
+      "repo": "AI-Tools-Hub"
+    }
   },
   "repository": {
     "type": "git",
@@ -45,5 +74,8 @@
     "electron": "^45.0.0",
     "electron-builder": "^26.18.0",
     "png-to-ico": "^3.0.2"
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.11"
   }
 }

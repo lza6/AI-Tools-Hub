@@ -38,11 +38,11 @@
   #stats { padding: 8px 24px; color: var(--muted); font-size: 12px; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
   #search { background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 7px 12px; font-size: 13px; width: 200px; outline: none; }
   #search:focus { border-color: var(--accent); }
-  #grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 16px; padding: 14px 24px 10px; }
-  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 10px; transition: border-color .15s; cursor: pointer; }
+  #grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(272px, 1fr)); gap: 12px; padding: 10px 20px 8px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 8px; transition: border-color .15s; cursor: pointer; }
   .card:hover { border-color: var(--accent); }
   .card-head { display: flex; align-items: center; gap: 12px; }
-  .logo { width: 44px; height: 44px; border-radius: 10px; background: var(--panel); border: 1px solid var(--border); flex-shrink: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--muted); }
+  .logo { width: 38px; height: 38px; border-radius: 10px; background: var(--panel); border: 1px solid var(--border); flex-shrink: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--muted); }
   .logo img { width: 100%; height: 100%; object-fit: cover; }
   .card-title { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
   .card-fullname { font-size: 11px; color: var(--muted); }
@@ -52,7 +52,7 @@
   .badge.ok { color: var(--green); border: 1px solid color-mix(in srgb, var(--green) 40%, transparent); background: color-mix(in srgb, var(--green) 10%, transparent); }
   .badge.update { color: var(--orange); border: 1px solid color-mix(in srgb, var(--orange) 40%, transparent); background: color-mix(in srgb, var(--orange) 10%, transparent); }
   .badge.no { color: var(--red); border: 1px solid color-mix(in srgb, var(--red) 40%, transparent); background: color-mix(in srgb, var(--red) 8%, transparent); }
-  .desc { font-size: 13px; line-height: 1.6; color: var(--text); opacity: .85; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .desc { font-size: 12px; line-height: 1.5; color: var(--text); opacity: .85; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   .caps { display: flex; flex-wrap: wrap; gap: 6px; }
   .cap { font-size: 11px; padding: 3px 8px; border-radius: 4px; background: var(--panel); color: var(--muted); border: 1px solid var(--border); }
   .ver-row { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
@@ -171,7 +171,7 @@
 const $ = s => document.querySelector(s);
 const grid = $('#grid'), stats = $('#stats'), pager = $('#pager');
 let registry = null, states = {}, skillStates = {}, curType = 'all', curCat = 'all', curPage = 1, keyword = '', PLATFORM = '';
-const PAGE_SIZE = 9;
+const PAGE_SIZE = 12;
 
 const TYPE_NAMES = { 'cli-tool': 'CLI 工具', 'mcp': 'MCP 服务器', 'skill': '技能', 'hook': 'Hook', 'agent': 'Agent', 'extension': '扩展' };
 const TYPE_DESCS = {

@@ -10,29 +10,72 @@
       "category": "上下文优化",
       "repo": "JuliusBrussee/caveman",
       "description": "上下文压缩技能：让 agent 输出省 75% token、输入省 46%，安装命令自动检测 30+ agent（Claude Code/Codex/Cursor 等）。",
-      "capabilities": ["输出省 75% token", "输入省 46%", "30+ agent 自动检测", "技能形式零依赖", "按需唤醒（/caveman）"],
+      "capabilities": [
+        "输出省 75% token",
+        "输入省 46%",
+        "30+ agent 自动检测",
+        "技能形式零依赖",
+        "按需唤醒（/caveman）"
+      ],
       "solves": "agent 话多费 token；caveman 用技能约束输出密度，与 icm（存储）、context-mode（检索）组成省 token 全链路。",
       "homepage": "https://github.com/JuliusBrussee/caveman",
-      "conflicts": ["与 rtk（压缩命令输出）互补不冲突；与 context-mode（压缩 MCP 输出）可叠加"],
+      "conflicts": [
+        "与 rtk（压缩命令输出）互补不冲突；与 context-mode（压缩 MCP 输出）可叠加"
+      ],
       "install": {
-        "windows": { "type": "npm", "pkg": "caveman", "oneLiner": "caveman-install（或 npx skills add JuliusBrussee/caveman）" },
-        "macos": { "type": "npm", "pkg": "caveman", "oneLiner": "caveman-install" },
-        "linux": { "type": "npm", "pkg": "caveman", "oneLiner": "caveman-install" }
+        "windows": {
+          "type": "npm",
+          "pkg": "caveman",
+          "oneLiner": "caveman-install（或 npx skills add JuliusBrussee/caveman）"
+        },
+        "macos": {
+          "type": "npm",
+          "pkg": "caveman",
+          "oneLiner": "caveman-install"
+        },
+        "linux": {
+          "type": "npm",
+          "pkg": "caveman",
+          "oneLiner": "caveman-install"
+        }
       },
       "versionCmd": "caveman-install --version",
-      "versionProbe": { "type": "github-tag", "stripPrefix": "v" },
+      "versionProbe": {
+        "type": "github-tag",
+        "stripPrefix": "v"
+      },
       "usage": {
         "quickStart": "caveman-install",
         "quickStartDesc": "自动检测已装 agent 并写入技能；之后 agent 自动进入省 token 模式，不醒就 /caveman",
         "commands": [
-          { "cmd": "caveman-install", "desc": "全局安装并自动配置检测到的 agent" },
-          { "cmd": "/caveman", "desc": "agent 内手动唤醒压缩模式" },
-          { "cmd": "npx skills add JuliusBrussee/caveman", "desc": "走 Agent Skills 标准安装（71 个 agent 兼容）" }
+          {
+            "cmd": "caveman-install",
+            "desc": "全局安装并自动配置检测到的 agent"
+          },
+          {
+            "cmd": "/caveman",
+            "desc": "agent 内手动唤醒压缩模式"
+          },
+          {
+            "cmd": "npx skills add JuliusBrussee/caveman",
+            "desc": "走 Agent Skills 标准安装（71 个 agent 兼容）"
+          }
         ],
         "notes": "v4.0.1；MIT 许可；技能是静态注入的提示词约束，不吃运行时性能"
       },
       "skills": [
-        { "name": "Caveman 压缩技能", "agents": ["claude-code"], "installCmd": "caveman-install", "dir": "caveman", "keywords": ["caveman"], "description": "输出压缩技能注入" }
+        {
+          "name": "Caveman 压缩技能",
+          "agents": [
+            "claude-code"
+          ],
+          "installCmd": "caveman-install",
+          "dir": "caveman",
+          "keywords": [
+            "caveman"
+          ],
+          "description": "输出压缩技能注入"
+        }
       ]
     },
     {
@@ -43,25 +86,60 @@
       "category": "工作流",
       "repo": "Fission-AI/OpenSpec",
       "description": "规格驱动开发（SDD）CLI：先写规格再写码，变更提案→审批→实施的全流程管理，Claude Code 契合度最高。",
-      "capabilities": ["规格驱动开发流程", "变更提案管理", "agent 指令自动生成", "多 agent 支持", "npm 一键装"],
+      "capabilities": [
+        "规格驱动开发流程",
+        "变更提案管理",
+        "agent 指令自动生成",
+        "多 agent 支持",
+        "npm 一键装"
+      ],
       "solves": "AI 写码没规格容易跑偏返工；OpenSpec 强制先出规格提案、审批后实施，可追溯。",
       "homepage": "https://github.com/Fission-AI/OpenSpec",
-      "conflicts": ["与 spec-kit（GitHub 官方 SDD）同赛道竞品，二选一"],
+      "conflicts": [
+        "与 spec-kit（GitHub 官方 SDD）同赛道竞品，二选一"
+      ],
       "install": {
-        "windows": { "type": "npm", "pkg": "@fission-ai/openspec", "oneLiner": "npm install -g @fission-ai/openspec@latest" },
-        "macos": { "type": "npm", "pkg": "@fission-ai/openspec", "oneLiner": "npm install -g @fission-ai/openspec@latest" },
-        "linux": { "type": "npm", "pkg": "@fission-ai/openspec", "oneLiner": "npm install -g @fission-ai/openspec@latest" }
+        "windows": {
+          "type": "npm",
+          "pkg": "@fission-ai/openspec",
+          "oneLiner": "npm install -g @fission-ai/openspec@latest"
+        },
+        "macos": {
+          "type": "npm",
+          "pkg": "@fission-ai/openspec",
+          "oneLiner": "npm install -g @fission-ai/openspec@latest"
+        },
+        "linux": {
+          "type": "npm",
+          "pkg": "@fission-ai/openspec",
+          "oneLiner": "npm install -g @fission-ai/openspec@latest"
+        }
       },
       "versionCmd": "openspec --version",
-      "versionProbe": { "type": "npm", "pkg": "@fission-ai/openspec" },
+      "versionProbe": {
+        "type": "npm",
+        "pkg": "@fission-ai/openspec"
+      },
       "usage": {
         "quickStart": "openspec init",
         "quickStartDesc": "项目根目录初始化 openspec/ 结构并配置 agent 指令",
         "commands": [
-          { "cmd": "openspec init", "desc": "在当前项目初始化规格目录结构" },
-          { "cmd": "openspec proposal <变更名>", "desc": "创建变更提案（规格 diff）供审批" },
-          { "cmd": "openspec archive <变更名>", "desc": "实施完成后归档变更" },
-          { "cmd": "openspec list", "desc": "列出进行中的变更提案" }
+          {
+            "cmd": "openspec init",
+            "desc": "在当前项目初始化规格目录结构"
+          },
+          {
+            "cmd": "openspec proposal <变更名>",
+            "desc": "创建变更提案（规格 diff）供审批"
+          },
+          {
+            "cmd": "openspec archive <变更名>",
+            "desc": "实施完成后归档变更"
+          },
+          {
+            "cmd": "openspec list",
+            "desc": "列出进行中的变更提案"
+          }
         ],
         "notes": "npm 包名带 scope（@fission-ai/openspec），命令名是 openspec；版本探测走 npm registry"
       },
@@ -75,23 +153,61 @@
       "category": "上下文优化",
       "repo": "nadimtuhin/claude-token-optimizer",
       "description": "项目文档结构重构：把 CLAUDE.md 体系优化为按需加载结构，启动 token 省 ~90%（从 15k 降到 1.5k 级别）。",
-      "capabilities": ["文档结构重构", "启动 token 省 90%", "按需加载", "一键 init", "效果可量化"],
+      "capabilities": [
+        "文档结构重构",
+        "启动 token 省 90%",
+        "按需加载",
+        "一键 init",
+        "效果可量化"
+      ],
       "solves": "CLAUDE.md 越写越长每次会话都全量吃进上下文；optimizer 重构为索引+按需读取。",
       "homepage": "https://github.com/nadimtuhin/claude-token-optimizer",
-      "conflicts": ["会重写你的 CLAUDE.md 结构——执行前确认有备份"],
+      "conflicts": [
+        "会重写你的 CLAUDE.md 结构——执行前确认有备份"
+      ],
       "install": {
-        "windows": { "type": "npx-run", "pkg": "claude-token-optimizer", "args": ["init"], "oneLiner": "npx claude-token-optimizer init" },
-        "macos": { "type": "npx-run", "pkg": "claude-token-optimizer", "args": ["init"], "oneLiner": "npx claude-token-optimizer init" },
-        "linux": { "type": "npx-run", "pkg": "claude-token-optimizer", "args": ["init"], "oneLiner": "npx claude-token-optimizer init" }
+        "windows": {
+          "type": "npx-run",
+          "pkg": "claude-token-optimizer",
+          "args": [
+            "init"
+          ],
+          "oneLiner": "npx claude-token-optimizer init"
+        },
+        "macos": {
+          "type": "npx-run",
+          "pkg": "claude-token-optimizer",
+          "args": [
+            "init"
+          ],
+          "oneLiner": "npx claude-token-optimizer init"
+        },
+        "linux": {
+          "type": "npx-run",
+          "pkg": "claude-token-optimizer",
+          "args": [
+            "init"
+          ],
+          "oneLiner": "npx claude-token-optimizer init"
+        }
       },
       "versionCmd": "npx claude-token-optimizer --version",
-      "versionProbe": { "type": "npm", "pkg": "claude-token-optimizer" },
+      "versionProbe": {
+        "type": "npm",
+        "pkg": "claude-token-optimizer"
+      },
       "usage": {
         "quickStart": "npx claude-token-optimizer init",
         "quickStartDesc": "扫描项目文档结构并重构为按需加载形态；建议在 git 干净状态执行以便回滚",
         "commands": [
-          { "cmd": "npx claude-token-optimizer init", "desc": "分析并重构当前项目的 CLAUDE.md 体系" },
-          { "cmd": "npx claude-token-optimizer --help", "desc": "查看子命令" }
+          {
+            "cmd": "npx claude-token-optimizer init",
+            "desc": "分析并重构当前项目的 CLAUDE.md 体系"
+          },
+          {
+            "cmd": "npx claude-token-optimizer --help",
+            "desc": "查看子命令"
+          }
         ],
         "notes": "改动前务必备份（git commit）；重构后前后 token 对比工具会输出"
       },
@@ -105,28 +221,87 @@
       "category": "工作流",
       "repo": "OthmanAdi/planning-with-files",
       "description": "磁盘持久化执行计划技能：任务计划/进展/发现写进 task_plan.md 等文件，每轮自动回注上下文，/clear 和压缩都不丢。",
-      "capabilities": ["计划文件持久化", "每轮回注上下文", "跨会话存活", "hook 自动注入", "Trending #1 有 A/B 数据"],
+      "capabilities": [
+        "计划文件持久化",
+        "每轮回注上下文",
+        "跨会话存活",
+        "hook 自动注入",
+        "Trending #1 有 A/B 数据"
+      ],
       "solves": "长任务做到一半上下文被压缩，agent 忘了之前进展；计划在磁盘上，随时捡回。",
       "homepage": "https://github.com/OthmanAdi/planning-with-files",
       "conflicts": [],
       "install": {
-        "windows": { "type": "npm", "pkg": "skills", "args": ["add", "OthmanAdi/planning-with-files", "--skill", "planning-with-files", "-g"], "oneLiner": "npx skills add OthmanAdi/planning-with-files --skill planning-with-files -g" },
-        "macos": { "type": "npm", "pkg": "skills", "args": ["add", "OthmanAdi/planning-with-files", "--skill", "planning-with-files", "-g"], "oneLiner": "npx skills add OthmanAdi/planning-with-files --skill planning-with-files -g" },
-        "linux": { "type": "npm", "pkg": "skills", "args": ["add", "OthmanAdi/planning-with-files", "--skill", "planning-with-files", "-g"], "oneLiner": "npx skills add OthmanAdi/planning-with-files --skill planning-with-files -g" }
+        "windows": {
+          "type": "npm",
+          "pkg": "skills",
+          "args": [
+            "add",
+            "OthmanAdi/planning-with-files",
+            "--skill",
+            "planning-with-files",
+            "-g"
+          ],
+          "oneLiner": "npx skills add OthmanAdi/planning-with-files --skill planning-with-files -g"
+        },
+        "macos": {
+          "type": "npm",
+          "pkg": "skills",
+          "args": [
+            "add",
+            "OthmanAdi/planning-with-files",
+            "--skill",
+            "planning-with-files",
+            "-g"
+          ],
+          "oneLiner": "npx skills add OthmanAdi/planning-with-files --skill planning-with-files -g"
+        },
+        "linux": {
+          "type": "npm",
+          "pkg": "skills",
+          "args": [
+            "add",
+            "OthmanAdi/planning-with-files",
+            "--skill",
+            "planning-with-files",
+            "-g"
+          ],
+          "oneLiner": "npx skills add OthmanAdi/planning-with-files --skill planning-with-files -g"
+        }
       },
       "versionCmd": "echo skill",
-      "versionProbe": { "type": "github-tag" },
+      "versionProbe": {
+        "type": "github-tag"
+      },
       "usage": {
         "quickStart": "npx skills add OthmanAdi/planning-with-files --skill planning-with-files -g",
         "quickStartDesc": "经 npx skills 安装到 ~/.agents/skills/（71 个 agent 兼容）；Claude Code 插件路线则含 skill+hooks+slash 命令全家桶",
         "commands": [
-          { "cmd": "npx skills add OthmanAdi/planning-with-files --skill planning-with-files -g", "desc": "全局安装技能（Agent Skills 标准路径）" },
-          { "cmd": "/plan", "desc": "agent 内创建 task_plan.md（接受 plan-mode 方案后落盘）" }
+          {
+            "cmd": "npx skills add OthmanAdi/planning-with-files --skill planning-with-files -g",
+            "desc": "全局安装技能（Agent Skills 标准路径）"
+          },
+          {
+            "cmd": "/plan",
+            "desc": "agent 内创建 task_plan.md（接受 plan-mode 方案后落盘）"
+          }
         ],
         "notes": "与 plan mode 互补：plan mode 设计方案，planning-with-files 在执行期持久化状态；hooks 自动维持文件在注意力窗口"
       },
       "skills": [
-        { "name": "Planning-With-Files 技能", "agents": ["claude-code"], "installCmd": "npx skills add OthmanAdi/planning-with-files --skill planning-with-files -g", "dir": "planning-with-files", "keywords": ["planning-with-files", "task_plan.md"], "description": "磁盘持久化计划技能" }
+        {
+          "name": "Planning-With-Files 技能",
+          "agents": [
+            "claude-code"
+          ],
+          "installCmd": "npx skills add OthmanAdi/planning-with-files --skill planning-with-files -g",
+          "dir": "planning-with-files",
+          "keywords": [
+            "planning-with-files",
+            "task_plan.md"
+          ],
+          "description": "磁盘持久化计划技能"
+        }
       ]
     },
     {
@@ -137,37 +312,82 @@
       "category": "记忆",
       "repo": "rtk-ai/icm",
       "description": "为 LLM 提供持久记忆：跨会话记忆存储、语义召回、知识图谱（memoir）、自动整理与衰减，支持 Claude Code / Claude Desktop 集成。",
-      "capabilities": ["跨会话持久记忆", "语义搜索召回", "memoir 知识图谱", "会话转录归档", "记忆健康审计"],
+      "capabilities": [
+        "跨会话持久记忆",
+        "语义搜索召回",
+        "memoir 知识图谱",
+        "会话转录归档",
+        "记忆健康审计"
+      ],
       "solves": "AI 会话结束即失忆；icm 让每个项目拥有可搜索、可整理的长期记忆库。",
       "homepage": "https://github.com/rtk-ai/icm",
       "conflicts": [],
       "install": {
-        "windows": { "type": "ps1", "url": "https://raw.githubusercontent.com/rtk-ai/icm/main/install.ps1", "oneLiner": "irm https://raw.githubusercontent.com/rtk-ai/icm/main/install.ps1 | iex" },
-        "macos": { "type": "shell", "url": "https://raw.githubusercontent.com/rtk-ai/icm/main/install.sh", "oneLiner": "curl -fsSL https://raw.githubusercontent.com/rtk-ai/icm/main/install.sh | bash" },
-        "linux": { "type": "shell", "url": "https://raw.githubusercontent.com/rtk-ai/icm/main/install.sh", "oneLiner": "curl -fsSL https://raw.githubusercontent.com/rtk-ai/icm/main/install.sh | bash" }
+        "windows": {
+          "type": "ps1",
+          "url": "https://raw.githubusercontent.com/rtk-ai/icm/main/install.ps1",
+          "oneLiner": "irm https://raw.githubusercontent.com/rtk-ai/icm/main/install.ps1 | iex"
+        },
+        "macos": {
+          "type": "shell",
+          "url": "https://raw.githubusercontent.com/rtk-ai/icm/main/install.sh",
+          "oneLiner": "curl -fsSL https://raw.githubusercontent.com/rtk-ai/icm/main/install.sh | bash"
+        },
+        "linux": {
+          "type": "shell",
+          "url": "https://raw.githubusercontent.com/rtk-ai/icm/main/install.sh",
+          "oneLiner": "curl -fsSL https://raw.githubusercontent.com/rtk-ai/icm/main/install.sh | bash"
+        }
       },
       "versionCmd": "icm --version",
       "usage": {
         "quickStart": "icm init",
         "quickStartDesc": "一条命令完成全部集成：自动检测已装的 agent（Claude Code / Codex / Gemini CLI 等最多 18 个）并写入对应 hooks、skills 和指令",
         "commands": [
-          { "cmd": "icm init", "desc": "初始化：为所有检测到的 agent 配置记忆集成（首次必跑）" },
-          { "cmd": "icm store -t decisions-myapp -c \"决策内容\" -i high", "desc": "存一条记忆：-t 主题（建议 decisions-项目名）、-c 内容、-i 重要性(high/critical)" },
-          { "cmd": "icm recall \"怎么配置的 auth\"", "desc": "语义搜索记忆（首次会下载 ~2GB 嵌入模型，加 --no-embeddings 可纯关键词检索）" },
-          { "cmd": "icm list --topic decisions-myapp", "desc": "列出某主题下全部记忆" },
-          { "cmd": "icm doctor", "desc": "体检：检查各 agent 的 hook 路径与 SQLite 库完整性" },
-          { "cmd": "icm health", "desc": "记忆健康审计：过期度、需要整理的主题" },
-          { "cmd": "icm consolidate-all", "desc": "把超量主题压缩成摘要（适合挂 cron 定期跑）" }
+          {
+            "cmd": "icm init",
+            "desc": "初始化：为所有检测到的 agent 配置记忆集成（首次必跑）"
+          },
+          {
+            "cmd": "icm store -t decisions-myapp -c \"决策内容\" -i high",
+            "desc": "存一条记忆：-t 主题（建议 decisions-项目名）、-c 内容、-i 重要性(high/critical)"
+          },
+          {
+            "cmd": "icm recall \"怎么配置的 auth\"",
+            "desc": "语义搜索记忆（首次会下载 ~2GB 嵌入模型，加 --no-embeddings 可纯关键词检索）"
+          },
+          {
+            "cmd": "icm list --topic decisions-myapp",
+            "desc": "列出某主题下全部记忆"
+          },
+          {
+            "cmd": "icm doctor",
+            "desc": "体检：检查各 agent 的 hook 路径与 SQLite 库完整性"
+          },
+          {
+            "cmd": "icm health",
+            "desc": "记忆健康审计：过期度、需要整理的主题"
+          },
+          {
+            "cmd": "icm consolidate-all",
+            "desc": "把超量主题压缩成摘要（适合挂 cron 定期跑）"
+          }
         ],
         "notes": "无需 LLM 调用即可存取（区别于 Mem0/claude-mem）；每个项目一个 SQLite 文件，全本机存储；提取队列用你已有的 Claude Code/Codex CLI 跑，设 provider=\"none\" 可完全离线"
       },
       "skills": [
         {
           "name": "ICM 记忆协议",
-          "agents": ["claude-code"],
+          "agents": [
+            "claude-code"
+          ],
           "installCmd": "icm init",
           "dir": "",
-          "keywords": ["icm.exe recall", "icm.exe store", "Persistent memory"],
+          "keywords": [
+            "icm.exe recall",
+            "icm.exe store",
+            "Persistent memory"
+          ],
           "description": "将 icm 记忆协议注入 CLAUDE.md，自动召回/存储记忆"
         }
       ]
@@ -180,23 +400,52 @@
       "category": "记忆",
       "repo": "thedotmack/claude-mem",
       "description": "Claude Code 会话记忆：自动捕获工具使用观测、生成语义摘要、跨会话恢复上下文，会话结束知识不丢失。",
-      "capabilities": ["自动捕获工具观测", "语义摘要生成", "跨会话上下文恢复", "MCP 搜索工具", "Gemini CLI 支持"],
+      "capabilities": [
+        "自动捕获工具观测",
+        "语义摘要生成",
+        "跨会话上下文恢复",
+        "MCP 搜索工具",
+        "Gemini CLI 支持"
+      ],
       "solves": "每次开新会话都要重新解释项目背景；claude-mem 全自动记录并回放，真正零手动。",
       "homepage": "https://github.com/thedotmack/claude-mem",
-      "conflicts": ["与 ICM 功能定位重叠（会话记忆），二选一或按项目区分使用"],
+      "conflicts": [
+        "与 ICM 功能定位重叠（会话记忆），二选一或按项目区分使用"
+      ],
       "install": {
-        "windows": { "type": "npm", "pkg": "claude-mem", "oneLiner": "npx claude-mem install（自动配置 Claude Code hooks + MCP）" },
-        "macos": { "type": "npm", "pkg": "claude-mem", "oneLiner": "npx claude-mem install" },
-        "linux": { "type": "npm", "pkg": "claude-mem", "oneLiner": "npx claude-mem install" }
+        "windows": {
+          "type": "npm",
+          "pkg": "claude-mem",
+          "oneLiner": "npx claude-mem install（自动配置 Claude Code hooks + MCP）"
+        },
+        "macos": {
+          "type": "npm",
+          "pkg": "claude-mem",
+          "oneLiner": "npx claude-mem install"
+        },
+        "linux": {
+          "type": "npm",
+          "pkg": "claude-mem",
+          "oneLiner": "npx claude-mem install"
+        }
       },
       "versionCmd": "claude-mem --version",
       "usage": {
         "quickStart": "npx claude-mem install",
         "quickStartDesc": "一条命令全自动：安装 hooks 到 Claude Code（SessionStart/SessionEnd 捕获与回放），装完重启 Claude Code 即生效",
         "commands": [
-          { "cmd": "npx claude-mem install", "desc": "安装并自动配置 Claude Code（hooks + MCP 一体）" },
-          { "cmd": "npx claude-mem install --ide gemini-cli", "desc": "安装到 Gemini CLI（自动检测 ~/.gemini）" },
-          { "cmd": "claude-mem uninstall", "desc": "卸载全部 hooks 与配置" }
+          {
+            "cmd": "npx claude-mem install",
+            "desc": "安装并自动配置 Claude Code（hooks + MCP 一体）"
+          },
+          {
+            "cmd": "npx claude-mem install --ide gemini-cli",
+            "desc": "安装到 Gemini CLI（自动检测 ~/.gemini）"
+          },
+          {
+            "cmd": "claude-mem uninstall",
+            "desc": "卸载全部 hooks 与配置"
+          }
         ],
         "notes": "全自动触发：SessionEnd 捕获本次会话的工具观测→语义压缩入库；SessionStart 自动注入相关记忆。与 ICM 的区别：claude-mem 免手动零配置但绑定 Claude Code，ICM 可跨 18 个 agent 且存取无 LLM 调用"
       },
@@ -210,24 +459,54 @@
       "category": "代码图谱",
       "repo": "tirth8205/code-review-graph",
       "description": "本地优先代码知识图谱：解析代码库建图，审查变更时给风险评分、受影响流分析，MCP+CLI 双形态。",
-      "capabilities": ["代码库解析建图", "变更风险评分", "受影响流分析", "MCP+CLI 双形态", "多平台自动配置"],
+      "capabilities": [
+        "代码库解析建图",
+        "变更风险评分",
+        "受影响流分析",
+        "MCP+CLI 双形态",
+        "多平台自动配置"
+      ],
       "solves": "代码审查靠人肉读 diff 猜影响面；建图后 detect_changes 直接给出风险评分和受影响执行流。",
       "homepage": "https://github.com/tirth8205/code-review-graph",
       "conflicts": [],
       "install": {
-        "windows": { "type": "pip", "pkg": "code-review-graph", "oneLiner": "pip install code-review-graph 然后 code-review-graph install" },
-        "macos": { "type": "pip", "pkg": "code-review-graph", "oneLiner": "pip install code-review-graph" },
-        "linux": { "type": "pip", "pkg": "code-review-graph", "oneLiner": "pip install code-review-graph" }
+        "windows": {
+          "type": "pip",
+          "pkg": "code-review-graph",
+          "oneLiner": "pip install code-review-graph 然后 code-review-graph install"
+        },
+        "macos": {
+          "type": "pip",
+          "pkg": "code-review-graph",
+          "oneLiner": "pip install code-review-graph"
+        },
+        "linux": {
+          "type": "pip",
+          "pkg": "code-review-graph",
+          "oneLiner": "pip install code-review-graph"
+        }
       },
       "versionCmd": "code-review-graph --version",
       "usage": {
         "quickStart": "code-review-graph install",
         "quickStartDesc": "一条命令自动检测已装平台（Claude Code/Codex/Cursor/Gemini CLI）写入 MCP 配置+hooks+规则注入",
         "commands": [
-          { "cmd": "code-review-graph install", "desc": "自动检测所有 AI 平台并配置 MCP/hooks/规则" },
-          { "cmd": "code-review-graph build", "desc": "解析当前代码库建图（项目根目录执行）" },
-          { "cmd": "code-review-graph install --platform claude-code", "desc": "只配置 Claude Code" },
-          { "cmd": "code-review-graph install --verify", "desc": "配置并自检" }
+          {
+            "cmd": "code-review-graph install",
+            "desc": "自动检测所有 AI 平台并配置 MCP/hooks/规则"
+          },
+          {
+            "cmd": "code-review-graph build",
+            "desc": "解析当前代码库建图（项目根目录执行）"
+          },
+          {
+            "cmd": "code-review-graph install --platform claude-code",
+            "desc": "只配置 Claude Code"
+          },
+          {
+            "cmd": "code-review-graph install --verify",
+            "desc": "配置并自检"
+          }
         ],
         "notes": "建图后文件变更 hook 自动增量更新索引；审查时用 detect_changes 拿风险评分、get_impact_radius 拿影响面。本机已装（.local/bin），首次用先 code-review-graph build"
       },
@@ -241,87 +520,54 @@
       "category": "上下文优化",
       "repo": "mksglu/context-mode",
       "description": "MCP 工具调用输出压缩路由：原始数据（Playwright 快照/GitHub 结果等）不再进上下文，索引进 SQLite FTS5，agent 只取相关部分。",
-      "capabilities": ["MCP 输出压缩路由", "SQLite FTS5 事件索引", "BM25 相关性检索", "会话连续性", "状态栏节省统计"],
+      "capabilities": [
+        "MCP 输出压缩路由",
+        "SQLite FTS5 事件索引",
+        "BM25 相关性检索",
+        "会话连续性",
+        "状态栏节省统计"
+      ],
       "solves": "每次 MCP 调用都把原始大数据灌进上下文（一次 Playwright 快照 56KB）；context-mode 强制路由到本地库，按需检索。",
       "homepage": "https://github.com/mksglu/context-mode",
-      "conflicts": ["与 RTK 定位部分重叠（RTK 压缩 CLI 命令输出，context-mode 压缩 MCP 工具输出，可共存互补）"],
+      "conflicts": [
+        "与 RTK 定位部分重叠（RTK 压缩 CLI 命令输出，context-mode 压缩 MCP 工具输出，可共存互补）"
+      ],
       "install": {
-        "windows": { "type": "npm", "pkg": "context-mode", "oneLiner": "claude mcp add context-mode -- npx -y context-mode" },
-        "macos": { "type": "npm", "pkg": "context-mode", "oneLiner": "claude mcp add context-mode -- npx -y context-mode" },
-        "linux": { "type": "npm", "pkg": "context-mode", "oneLiner": "claude mcp add context-mode -- npx -y context-mode" }
+        "windows": {
+          "type": "npm",
+          "pkg": "context-mode",
+          "oneLiner": "claude mcp add context-mode -- npx -y context-mode"
+        },
+        "macos": {
+          "type": "npm",
+          "pkg": "context-mode",
+          "oneLiner": "claude mcp add context-mode -- npx -y context-mode"
+        },
+        "linux": {
+          "type": "npm",
+          "pkg": "context-mode",
+          "oneLiner": "claude mcp add context-mode -- npx -y context-mode"
+        }
       },
       "versionCmd": "context-mode --version",
       "usage": {
         "quickStart": "claude mcp add context-mode -- npx -y context-mode",
         "quickStartDesc": "一条命令注册 MCP；hook 路由自动生效，MCP 原始输出进本地 SQLite 不进上下文",
         "commands": [
-          { "cmd": "claude mcp add context-mode -- npx -y context-mode", "desc": "注册到 Claude Code（hook 路由自动启用）" },
-          { "cmd": "npm install -g context-mode", "desc": "全局安装 CLI（statusline 等需要）" },
-          { "cmd": "context-mode statusline", "desc": "状态栏：本会话节省额/累计节省/效率百分比" }
+          {
+            "cmd": "claude mcp add context-mode -- npx -y context-mode",
+            "desc": "注册到 Claude Code（hook 路由自动启用）"
+          },
+          {
+            "cmd": "npm install -g context-mode",
+            "desc": "全局安装 CLI（statusline 等需要）"
+          },
+          {
+            "cmd": "context-mode statusline",
+            "desc": "状态栏：本会话节省额/累计节省/效率百分比"
+          }
         ],
         "notes": "设计原则：只管『数据去哪』不干预『模型怎么写』（无 brevity prompt 强制）；不做 --continue 时会话数据即刻清除，干净开始"
-      },
-      "skills": []
-    },
-    {
-      "id": "cc-switch",
-      "name": "CC-Switch",
-      "fullName": "CC Switch 供应商切换器",
-      "type": "cli-tool",
-      "category": "配置管理",
-      "repo": "farion1231/cc-switch",
-      "description": "Claude Code / Codex / Gemini CLI 等多 AI 供应商配置一键切换器（Tauri 桌面应用），管理不同 API 端点与密钥配置秒级切换。",
-      "capabilities": ["多供应商配置切换", "Windows/macOS/Linux 原生", "API 端点与密钥管理", "Portable 免安装版"],
-      "solves": "多家 API 中转来回改配置文件容易出错；cc-switch 图形化保存多套配置一键切。",
-      "homepage": "https://github.com/farion1231/cc-switch",
-      "conflicts": [],
-      "install": {
-        "windows": { "type": "github-release-zip", "asset": "CC-Switch-{V}-Windows-Portable.zip", "file": "CC-Switch.exe", "oneLiner": "从 Releases 下载 Windows Portable zip 解压即用" },
-        "macos": { "type": "github-release-dmg", "asset": "CC-Switch-{V}-macOS.dmg", "oneLiner": "从 Releases 下载 macOS dmg" },
-        "linux": { "type": "github-release-appimage", "asset": "CC-Switch-{V}-Linux-x86_64.AppImage", "oneLiner": "从 Releases 下载 AppImage" }
-      },
-      "versionCmd": "cc-switch --version",
-      "versionProbe": { "type": "github-tag", "stripPrefix": "v" },
-      "usage": {
-        "quickStart": "下载 Portable 双击运行",
-        "quickStartDesc": "桌面 GUI 应用，启动后在界面里添加各供应商配置（名称+BASE_URL+API Key），点切换即写入对应 CLI 配置",
-        "commands": [
-          { "cmd": "CC-Switch.exe（双击）", "desc": "启动图形界面管理所有供应商配置" },
-          { "cmd": "切换供应商", "desc": "界面内点击即改写 Claude Code/Codex 配置，秒级生效" }
-        ],
-        "notes": "GitHub tag 版本带 v 前缀（v4.0.21），应用内版本比对已做 stripPrefix 处理"
-      },
-      "skills": []
-    },
-    {
-      "id": "trivy",
-      "name": "Trivy",
-      "fullName": "Trivy Security Scanner",
-      "type": "cli-tool",
-      "category": "安全",
-      "repo": "aquasecurity/trivy",
-      "description": "全方位安全扫描器事实标准：依赖漏洞（SCA）、IaC 配置错误、密钥泄露、容器镜像一站式扫描。",
-      "capabilities": ["依赖漏洞扫描", "IaC 配置检查", "密钥泄露检测", "容器镜像扫描", "单二进制零依赖"],
-      "solves": "提交前想知道依赖有没有 CVE、代码里有没有硬编码密钥；trivy fs . 一条命令全查。",
-      "homepage": "https://github.com/aquasecurity/trivy",
-      "conflicts": [],
-      "install": {
-        "windows": { "type": "github-release-zip", "asset": "trivy_{V}_windows-64bit.zip", "file": "trivy.exe", "oneLiner": "从 Releases 下载 windows-64bit.zip 解压即用" },
-        "macos": { "type": "brew", "pkg": "trivy", "oneLiner": "brew install trivy" },
-        "linux": { "type": "shell", "url": "https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh", "oneLiner": "curl -fsSL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh" }
-      },
-      "versionCmd": "trivy --version",
-      "versionProbe": { "type": "github-tag", "stripPrefix": "v" },
-      "usage": {
-        "quickStart": "trivy fs .",
-        "quickStartDesc": "扫描当前目录：依赖漏洞 + IaC 错误 + 密钥泄露一次全出",
-        "commands": [
-          { "cmd": "trivy fs .", "desc": "扫描当前项目文件系统（依赖/IaC/密钥）" },
-          { "cmd": "trivy image <镜像名>", "desc": "扫描容器镜像漏洞" },
-          { "cmd": "trivy fs --scanners vuln,secret .", "desc": "只扫漏洞和密钥（跳过 IaC 加速）" },
-          { "cmd": "trivy fs --severity HIGH,CRITICAL .", "desc": "只看高危以上，输出干净" }
-        ],
-        "notes": "首次扫描会下载漏洞库（几十 MB，之后本地增量更新）；可挂 pre-commit 或 CI 做提交前门禁"
       },
       "skills": []
     },
@@ -333,55 +579,54 @@
       "category": "开发体验",
       "repo": "sirmalloc/ccstatusline",
       "description": "Claude Code 状态栏格式化器：模型名、context 用量、token 消耗实时显示，高度可配置，零安装 npx 直跑。",
-      "capabilities": ["状态栏实时显示", "context 用量监控", "模型名/token 统计", "高度可配置", "零安装"],
+      "capabilities": [
+        "状态栏实时显示",
+        "context 用量监控",
+        "模型名/token 统计",
+        "高度可配置",
+        "零安装"
+      ],
       "solves": "Claude Code 默认状态栏信息少；ccstatusline 显示 context 还剩多少，避免会话中途爆上下文。",
       "homepage": "https://github.com/sirmalloc/ccstatusline",
-      "conflicts": ["与 context-mode 的 statusline 功能重叠（二选一）"],
+      "conflicts": [
+        "与 context-mode 的 statusline 功能重叠（二选一）"
+      ],
       "install": {
-        "windows": { "type": "npx-config", "pkg": "ccstatusline", "oneLiner": "npx -y ccstatusline@latest 然后按提示写入 Claude Code settings" },
-        "macos": { "type": "npx-config", "pkg": "ccstatusline", "oneLiner": "npx -y ccstatusline@latest" },
-        "linux": { "type": "npx-config", "pkg": "ccstatusline", "oneLiner": "npx -y ccstatusline@latest" }
+        "windows": {
+          "type": "npx-config",
+          "pkg": "ccstatusline",
+          "oneLiner": "npx -y ccstatusline@latest 然后按提示写入 Claude Code settings"
+        },
+        "macos": {
+          "type": "npx-config",
+          "pkg": "ccstatusline",
+          "oneLiner": "npx -y ccstatusline@latest"
+        },
+        "linux": {
+          "type": "npx-config",
+          "pkg": "ccstatusline",
+          "oneLiner": "npx -y ccstatusline@latest"
+        }
       },
       "versionCmd": "npx -y ccstatusline@latest --version",
-      "versionProbe": { "type": "npm", "pkg": "ccstatusline" },
+      "versionProbe": {
+        "type": "npm",
+        "pkg": "ccstatusline"
+      },
       "usage": {
         "quickStart": "npx -y ccstatusline@latest",
         "quickStartDesc": "交互式 TUI 配置器：选好显示项自动写入 ~/.claude/settings.json 的 statusLine 字段",
         "commands": [
-          { "cmd": "npx -y ccstatusline@latest", "desc": "打开 TUI 配置器（选显示项→自动写入 settings.json）" },
-          { "cmd": "npx -y ccstatusline@latest --help", "desc": "查看全部选项" }
+          {
+            "cmd": "npx -y ccstatusline@latest",
+            "desc": "打开 TUI 配置器（选显示项→自动写入 settings.json）"
+          },
+          {
+            "cmd": "npx -y ccstatusline@latest --help",
+            "desc": "查看全部选项"
+          }
         ],
         "notes": "无需全局安装，Claude Code 每次渲染状态栏时 npx 拉起；配置一次永久生效"
-      },
-      "skills": []
-    },
-    {
-      "id": "agent-guardrails",
-      "name": "Agent-Guardrails",
-      "fullName": "Agent Guardrails 危险命令拦截",
-      "type": "hook",
-      "category": "安全",
-      "repo": "roboticforce/agent-guardrails",
-      "description": "AI agent 危险命令硬拦截：hook 层直接阻断 terraform destroy / DROP DATABASE / rm -rf 等毁灭性命令，防生产事故。",
-      "capabilities": ["危险命令硬拦截", "PreToolUse hook", "策略规则集", "生产事故防护", "纯配置零依赖"],
-      "solves": "人审批时看不清命令范围照样点同意（2026.7 Opus5 ultracode 删库事故）；guardrails 在 hook 层直接拒绝，不给审批机会。",
-      "homepage": "https://github.com/agent-guardrails/agent-guardrails",
-      "conflicts": [],
-      "install": {
-        "windows": { "type": "copy-config", "oneLiner": "将 claude-code/ 下的 hooks 配置与 policies 复制进 ~/.claude/ 与项目 .claude/" },
-        "macos": { "type": "copy-config", "oneLiner": "同 Windows" },
-        "linux": { "type": "copy-config", "oneLiner": "同 Windows" }
-      },
-      "versionCmd": "echo manual",
-      "versionProbe": { "type": "github-tag" },
-      "usage": {
-        "quickStart": "复制 claude-code/ hooks 配置到 ~/.claude/",
-        "quickStartDesc": "PreToolUse hook 读取 policies/ 规则集，Bash 命令进 hook 时正则匹配危险模式（destroy/drop/rm -rf 等）直接 block",
-        "commands": [
-          { "cmd": "cp -r claude-code/* ~/.claude/", "desc": "安装 hooks 到 Claude Code（项目级可放 .claude/）" },
-          { "cmd": "policies/*.yaml", "desc": "规则集：按项目需要启用/裁剪拦截策略" }
-        ],
-        "notes": "零运行时依赖，纯 hook 配置；误拦时在 policies 里放行特定命令即可。独有价值：审批发生在 hook 层而非人工层"
       },
       "skills": []
     },
@@ -393,39 +638,95 @@
       "category": "上下文优化",
       "repo": "rtk-ai/rtk",
       "description": "高性能 CLI 代理：在输出进入 LLM 上下文前过滤和压缩（git/gh/docker/kubectl/grep 等数十个命令的 token 优化输出）。",
-      "capabilities": ["token 优化输出", "git/gh/docker/kubectl 代理", "日志去重过滤", "JSON 结构提取", "敏感信息掩码"],
+      "capabilities": [
+        "token 优化输出",
+        "git/gh/docker/kubectl 代理",
+        "日志去重过滤",
+        "JSON 结构提取",
+        "敏感信息掩码"
+      ],
       "solves": "命令输出吃掉大量上下文 token；rtk 压缩 50-90%，让 agent 跑得更远更省。",
       "homepage": "https://github.com/rtk-ai/rtk",
-      "conflicts": ["说明: rtk 代理包装 git/gh/docker 等命令输出，与其它改写同类命令输出的 CLI 代理可能冲突（如同时存在多个输出压缩代理）"],
+      "conflicts": [
+        "说明: rtk 代理包装 git/gh/docker 等命令输出，与其它改写同类命令输出的 CLI 代理可能冲突（如同时存在多个输出压缩代理）"
+      ],
       "install": {
-        "windows": { "type": "github-release", "asset": "rtk-x86_64-pc-windows-msvc.zip", "file": "rtk.exe", "oneLiner": "从 GitHub Releases 下载 rtk-x86_64-pc-windows-msvc.zip 并解压到 %LOCALAPPDATA%\\Programs\\rtk" },
-        "macos": { "type": "github-release", "asset": "rtk-x86_64-apple-darwin.tar.gz", "file": "rtk", "oneLiner": "从 GitHub Releases 下载 darwin tar.gz 安装" },
-        "linux": { "type": "github-release", "asset": "rtk-x86_64-unknown-linux-musl.tar.gz", "file": "rtk", "oneLiner": "从 GitHub Releases 下载 linux musl tar.gz 安装" }
+        "windows": {
+          "type": "github-release",
+          "asset": "rtk-x86_64-pc-windows-msvc.zip",
+          "file": "rtk.exe",
+          "oneLiner": "从 GitHub Releases 下载 rtk-x86_64-pc-windows-msvc.zip 并解压到 %LOCALAPPDATA%\\Programs\\rtk"
+        },
+        "macos": {
+          "type": "github-release",
+          "asset": "rtk-x86_64-apple-darwin.tar.gz",
+          "file": "rtk",
+          "oneLiner": "从 GitHub Releases 下载 darwin tar.gz 安装"
+        },
+        "linux": {
+          "type": "github-release",
+          "asset": "rtk-x86_64-unknown-linux-musl.tar.gz",
+          "file": "rtk",
+          "oneLiner": "从 GitHub Releases 下载 linux musl tar.gz 安装"
+        }
       },
       "versionCmd": "rtk --version",
       "usage": {
         "quickStart": "rtk init -g",
         "quickStartDesc": "全局安装 hook 到默认 agent（Claude Code / Copilot）；重启 agent 后自动生效，agent 无感知",
         "commands": [
-          { "cmd": "rtk init -g", "desc": "全局初始化 Claude Code / Copilot（默认目标）" },
-          { "cmd": "rtk init -g --codex", "desc": "初始化 Codex (OpenAI)" },
-          { "cmd": "rtk init -g --agent cursor", "desc": "初始化 Cursor（也支持 windsurf/cline/kimi/trae 等 15+ agent）" },
-          { "cmd": "rtk git status", "desc": "压缩版 git status（agent 会自动被 hook 重写，无需手动）" },
-          { "cmd": "rtk read 文件名", "desc": "智能过滤读取文件（Read/Grep/Glob 内置工具不过 hook，需直接用 rtk）" },
-          { "cmd": "rtk test", "desc": "跑测试只显示失败项" },
-          { "cmd": "rtk diff", "desc": "超压缩 diff（只显示改动行）" },
-          { "cmd": "rtk grep 关键字", "desc": "紧凑 grep：按文件分组、去空白、截断" },
-          { "cmd": "rtk json 文件.json", "desc": "只看 JSON 结构不看值" }
+          {
+            "cmd": "rtk init -g",
+            "desc": "全局初始化 Claude Code / Copilot（默认目标）"
+          },
+          {
+            "cmd": "rtk init -g --codex",
+            "desc": "初始化 Codex (OpenAI)"
+          },
+          {
+            "cmd": "rtk init -g --agent cursor",
+            "desc": "初始化 Cursor（也支持 windsurf/cline/kimi/trae 等 15+ agent）"
+          },
+          {
+            "cmd": "rtk git status",
+            "desc": "压缩版 git status（agent 会自动被 hook 重写，无需手动）"
+          },
+          {
+            "cmd": "rtk read 文件名",
+            "desc": "智能过滤读取文件（Read/Grep/Glob 内置工具不过 hook，需直接用 rtk）"
+          },
+          {
+            "cmd": "rtk test",
+            "desc": "跑测试只显示失败项"
+          },
+          {
+            "cmd": "rtk diff",
+            "desc": "超压缩 diff（只显示改动行）"
+          },
+          {
+            "cmd": "rtk grep 关键字",
+            "desc": "紧凑 grep：按文件分组、去空白、截断"
+          },
+          {
+            "cmd": "rtk json 文件.json",
+            "desc": "只看 JSON 结构不看值"
+          }
         ],
         "notes": "原理：hook 拦截 Bash 工具调用并把输出压缩 50-90%（过滤/分组/截断/去重四策略）；内置工具（Read/Grep/Glob）不走 hook，读文件请直接用 rtk read/rtk grep/rtk find；不影响 prompt cache"
       },
       "skills": [
         {
           "name": "RTK 指令注入",
-          "agents": ["claude-code", "codex"],
+          "agents": [
+            "claude-code",
+            "codex"
+          ],
           "installCmd": "rtk init",
           "dir": "",
-          "keywords": ["rtk ", "token-optimized"],
+          "keywords": [
+            "rtk ",
+            "token-optimized"
+          ],
           "description": "将 rtk 使用指令写入 CLAUDE.md/AGENTS.md，让 agent 优先走 rtk 压缩命令"
         }
       ]

@@ -12,6 +12,9 @@ contextBridge.exposeInMainWorld('aihub', {
   logsFile: () => ipcRenderer.invoke('logs:file'),
   logsClear: () => ipcRenderer.invoke('logs:clear'),
   logsOpenDir: () => ipcRenderer.invoke('logs:openDir'),
+  // 设置持久化（userData/settings.json，跨重启可靠）
+  getSetting: key => ipcRenderer.invoke('settings:get', key),
+  setSetting: (key, value) => ipcRenderer.invoke('settings:set', key, value),
   installTool: tool => ipcRenderer.invoke('tool:install', tool),
   installSkill: (tool, skill) => ipcRenderer.invoke('skill:install', tool, skill),
   openExternal: url => ipcRenderer.invoke('shell:open', url),

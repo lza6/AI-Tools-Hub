@@ -163,6 +163,22 @@ ipcMain.handle('logs:file', () => logger.logDir());
 ipcMain.handle('logs:clear', () => { logger.clearMem(); return true; });
 ipcMain.handle('logs:openDir', () => { shell.openPath(logger.logDir()); return true; });
 
+// ------- 应用设置持久化（主题等）-------
+const settingsFile = () => path.join(app.getPath('userData'), 'settings.json');
+ipcMain.handle('settings:get', (_e, key) => {
+  try { return JSON.parse(readFileSync(settingsFile(), 'utf8'))[key] ?? null; } catch { return null; }
+});
+ipcMain.handle('settings:set', (_e, key, value) => {
+  try {
+    let s = {};
+    try { s = JSON.parse(readFileSync(settingsFile(), 'utf8')); } catch {}
+    s[key] = value;
+    writeFileSync(settingsFile(), JSON.stringify(s, null, 2), 'utf8');
+    logger.debug('settings', `已保存 ${key}=${JSON.stringify(value)}`);
+    return true;
+  } catch (e) { logger.error('settings', `保存失败: ${e.message}`); return false; }
+});
+
 // 安装日志缓冲（黑匣子）：renderer 实时拉取，同时全量走 logger 落盘
 const installLogs = {};
 function logInstall(id, line) {

@@ -283,28 +283,31 @@ function logInstall(id, line) {
 }
 function runCmdLogged(id, cmd, args, timeout = 600000) {
   logInstall(id, `$ ${cmd} ${args.join(' ')}`);
+  return runCmdLoggedInner(id, cmd, args, timeout).then(r => {
+    // ENOENT/EINVAL（npm.cmd shim 场景）→ shell 重试一次
+    if (r.error && /ENOENT|EINVAL/.test(r.error)) return runCmdLoggedInner(id, cmd, args, timeout, true);
+    return r;
+  });
+}
+function runCmdLoggedInner(id, cmd, args, timeout, forceShell) {
   return new Promise(resolve => {
-    let child;
+    // shell 模式时 args 手动拼接（execFile+shell 的参数语义）
+    const doExec = (err, stdout, stderr) => {
+      const out = (stdout || '').trim(), errOut = (stderr || '').trim();
+      if (out) logInstall(id, out);
+      if (errOut) logInstall(id, `[stderr] ${errOut}`);
+      if (err) logInstall(id, `[exit 错误] ${err.message}`);
+      resolve({ ok: !err, output: [out, errOut].filter(Boolean).join('\n'), error: err ? String(err.message) : null });
+    };
     try {
-      child = execFile(cmd, args, { timeout, windowsHide: true, maxBuffer: 10 * 1024 * 1024 }, (err, stdout, stderr) => {
-        const out = (stdout || '').trim(), errOut = (stderr || '').trim();
-        if (out) logInstall(id, out);
-        if (errOut) logInstall(id, `[stderr] ${errOut}`);
-        if (err) logInstall(id, `[exit 错误] ${err.message}`);
-        resolve({ ok: !err, output: [out, errOut].filter(Boolean).join('\n'), error: err ? String(err.message) : null });
-      });
-    } catch (e) {
-      // spawn 同步抛出（npm.cmd EINVAL 等）→ shell 重试
-      try {
-        child = execFile(cmd, args, { timeout, windowsHide: true, maxBuffer: 10 * 1024 * 1024, shell: true }, (err, stdout, stderr) => {
-          const out = (stdout || '').trim(), errOut = (stderr || '').trim();
-          if (err) logInstall(id, `[exit 错误] ${err.message}`);
-          resolve({ ok: !err, output: [out, errOut].filter(Boolean).join('\n'), error: err ? String(err.message) : null });
-        });
-      } catch (e2) {
-        logInstall(id, `[spawn 失败] ${e.message} / ${e2.message}`);
-        resolve({ ok: false, output: '', error: String(e2.message) });
+      if (forceShell) {
+        execFile(`${cmd} ${args.map(a => /^[\w@./:-]+$/.test(a) ? a : `"${a.replace(/"/g, '\\"')}"`).join(' ')}`, { timeout, windowsHide: true, maxBuffer: 10 * 1024 * 1024, shell: true }, doExec);
+      } else {
+        execFile(cmd, args, { timeout, windowsHide: true, maxBuffer: 10 * 1024 * 1024 }, doExec);
       }
+    } catch (e) {
+      logInstall(id, `[spawn 失败] ${e.message}`);
+      resolve({ ok: false, output: '', error: String(e.message) });
     }
   });
 }

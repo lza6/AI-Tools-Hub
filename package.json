@@ -16,10 +16,11 @@
       "src/**/*",
       "registry/**/*",
       "assets/logo-256.png",
+      "assets/logo-512.png",
       "assets/icon.ico"
     ],
-    "mac": { "icon": "assets/logo-256.png", "target": [{ "target": "dmg", "arch": ["x64", "arm64"] }] },
-    "linux": { "icon": "assets/logo-256.png", "target": ["AppImage", "deb"], "category": "Development" },
+    "mac": { "icon": "assets/logo-512.png", "target": [{ "target": "dmg", "arch": ["x64", "arm64"] }] },
+    "linux": { "icon": "assets/logo-512.png", "target": ["AppImage", "deb"], "category": "Development" },
     "win": { "icon": "assets/icon.ico", "target": ["portable", "nsis"] }
   },
   "repository": {

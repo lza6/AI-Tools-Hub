@@ -8,7 +8,7 @@ rem ===========================================================
 chcp 65001 >nul
 
 set "ROOT=%~dp0"
-set "EXE=%ROOT%dist\AI-Tools-Hub-1.5.0.exe"
+set "EXE=%ROOT%dist\AI-Tools-Hub 1.1.0.exe"
 
 if exist "%EXE%" (
     echo [AI-Tools-Hub] Starting: %EXE%

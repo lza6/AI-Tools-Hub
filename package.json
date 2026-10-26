@@ -1,6 +1,6 @@
 {
   "name": "ai-tools-hub",
-  "version": "1.1.0",
+  "version": "1.5.0",
   "description": "你的AI军火库 - CLI 工具 / MCP / 技能 / Hook 一站式安装与更新",
   "main": "electron/main.js",
   "scripts": {
@@ -63,7 +63,10 @@
     "skills",
     "marketplace"
   ],
-  "author": "lza6",
+  "author": {
+    "name": "lza6",
+    "email": "lza6@users.noreply.github.com"
+  },
   "license": "MIT",
   "type": "commonjs",
   "bugs": {

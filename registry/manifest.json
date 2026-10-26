@@ -14,8 +14,8 @@
       "homepage": "https://github.com/rtk-ai/icm",
       "install": {
         "windows": { "type": "ps1", "url": "https://raw.githubusercontent.com/rtk-ai/icm/main/install.ps1", "oneLiner": "irm https://raw.githubusercontent.com/rtk-ai/icm/main/install.ps1 | iex" },
-        "macos": { "type": "cargo", "pkg": "icm-cli --git https://github.com/rtk-ai/icm", "args": ["install", "--path", "crates/icm-cli"], "oneLiner": "cargo install --path crates/icm-cli（需先 clone 仓库）" },
-        "linux": { "type": "cargo", "pkg": "icm-cli", "args": ["install", "--path", "crates/icm-cli"], "oneLiner": "cargo install --path crates/icm-cli" }
+        "macos": { "type": "shell", "url": "https://raw.githubusercontent.com/rtk-ai/icm/main/install.sh", "oneLiner": "curl -fsSL https://raw.githubusercontent.com/rtk-ai/icm/main/install.sh | bash" },
+        "linux": { "type": "shell", "url": "https://raw.githubusercontent.com/rtk-ai/icm/main/install.sh", "oneLiner": "curl -fsSL https://raw.githubusercontent.com/rtk-ai/icm/main/install.sh | bash" }
       },
       "versionCmd": "icm --version",
       "skills": [
@@ -40,8 +40,8 @@
       "solves": "命令输出吃掉大量上下文 token；rtk 压缩 50-90%，让 agent 跑得更远更省。",
       "homepage": "https://github.com/rtk-ai/rtk",
       "install": {
-        "windows": { "type": "ps1", "url": "https://raw.githubusercontent.com/rtk-ai/rtk/main/install.ps1", "oneLiner": "irm https://raw.githubusercontent.com/rtk-ai/rtk/main/install.ps1 | iex" },
-        "macos": { "type": "shell", "url": "https://raw.githubusercontent.com/rtk-ai/rtk/main/install.sh", "oneLiner": "curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/main/install.sh | bash" },
+        "windows": { "type": "winget", "pkg": "rtk-ai.rtk", "oneLiner": "winget install rtk-ai.rtk" },
+        "macos": { "type": "brew", "pkg": "rtk", "oneLiner": "brew install rtk" },
         "linux": { "type": "shell", "url": "https://raw.githubusercontent.com/rtk-ai/rtk/main/install.sh", "oneLiner": "curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/main/install.sh | bash" }
       },
       "versionCmd": "rtk --version",

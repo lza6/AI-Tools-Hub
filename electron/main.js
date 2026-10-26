@@ -153,7 +153,9 @@ ipcMain.handle('skill:status', (_e, tool) => {
 
 ipcMain.handle('tool:install', async (_e, tool) => {
   try {
-    const inst = tool.install;
+    // 分平台结构: install.{windows,macos,linux}，取当前平台，逐级回退
+    const inst = tool.install?.[process.platform] || tool.install?.windows || tool.install?.linux || tool.install?.macos;
+    if (!inst) return { ok: false, output: `清单中缺少 ${process.platform} 平台的安装配置` };
     let r;
     if (inst.type === 'ps1') {
       if (!IS_WIN) return { ok: false, output: '该安装方式仅支持 Windows，请参考主页的 macOS/Linux 安装命令' };
@@ -171,6 +173,16 @@ ipcMain.handle('tool:install', async (_e, tool) => {
       r = await runCmd('npm', ['install', '-g', inst.pkg], 600000);
     } else if (inst.type === 'brew') {
       r = await runCmd('brew', ['install', inst.pkg], 600000);
+    } else if (inst.type === 'winget') {
+      // winget 可能不在 PATH（WindowsApps 下），用全路径回退
+      const wingetExe = path.join(process.env.LOCALAPPDATA || '', 'Microsoft', 'WindowsApps', 'winget.exe');
+      const exe = existsSync(wingetExe) ? wingetExe : 'winget';
+      r = await new Promise(resolve => {
+        execFile(exe, ['install', inst.pkg, '--accept-source-agreements', '--accept-package-agreements', '--silent'],
+          { timeout: 600000, windowsHide: true }, (err, stdout, stderr) => {
+            resolve({ ok: !err, output: (stdout || stderr || '').trim(), error: err ? String(err.message) : null });
+          });
+      });
     } else if (inst.type === 'cargo') {
       r = await runCmd('cargo', ['install', ...(inst.args || [inst.pkg])], 600000);
     } else {

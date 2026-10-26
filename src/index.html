@@ -156,6 +156,7 @@
     <label style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px"><input type="checkbox" id="lg-live" checked> 实时刷新</label>
     <span style="flex:1"></span>
     <button class="ghost" id="lg-refresh">↻ 刷新</button>
+    <button class="ghost" id="lg-copy">📋 复制全部</button>
     <button class="ghost" id="lg-export">💾 导出</button>
     <button class="ghost" id="lg-opendir">📂 日志目录</button>
     <button class="ghost" id="lg-clear">🗑 清空显示</button>
@@ -426,7 +427,8 @@ function renderLogEntries(entries) {
   $('#log-view').innerHTML = entries.map(e => {
     const d = new Date(e.t);
     const ts = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}.${String(d.getMilliseconds()).padStart(3, '0')}`;
-    return `<div><span style="opacity:.5">${ts}</span> <span class="lv-${e.level}">[${e.level}]</span> <span style="color:var(--accent)">[${esc(e.tag)}]</span> ${esc(e.msg)}</div>`;
+    const raw = `${e.t} [${e.level}] [${e.tag}] ${e.msg}`;
+    return `<div class="log-line" data-raw="${esc(raw)}" title="点击复制这条日志" style="cursor:pointer"><span style="opacity:.5">${ts}</span> <span class="lv-${e.level}">[${e.level}]</span> <span style="color:var(--accent)">[${esc(e.tag)}]</span> ${esc(e.msg)}</div>`;
   }).join('') || '（暂无匹配日志）';
   $('#log-view').scrollTop = $('#log-view').scrollHeight;
 }
@@ -439,10 +441,24 @@ async function refreshLogs() {
   tagSel.value = cur;
   renderLogEntries(entries);
 }
+$('#log-view').addEventListener('click', async e => {
+  const line = e.target.closest('.log-line');
+  if (!line) return;
+  await navigator.clipboard.writeText(line.dataset.raw || '');
+  const old = line.style.background;
+  line.style.background = 'color-mix(in srgb, var(--green) 25%, transparent)';
+  setTimeout(() => line.style.background = old, 400);
+});
 $('#lg-level').onchange = e => { logFilter.level = e.target.value; refreshLogs(); };
 $('#lg-tag').onchange = e => { logFilter.tag = e.target.value; refreshLogs(); };
 $('#log-search').addEventListener('input', e => { logFilter.keyword = e.target.value.trim(); refreshLogs(); });
 $('#lg-refresh').onclick = refreshLogs;
+$('#lg-copy').onclick = async () => {
+  const entries = await window.aihub.logsQuery(logFilter);
+  const text = entries.map(e => `${e.t} [${e.level}] [${e.tag}] ${e.msg}`).join('\n');
+  await navigator.clipboard.writeText(text || '（空）');
+  const btn = $('#lg-copy'); btn.textContent = '✔ 已复制'; setTimeout(() => btn.textContent = '📋 复制全部', 1500);
+};
 $('#lg-clear').onclick = async () => { await window.aihub.logsClear(); refreshLogs(); };
 $('#lg-opendir').onclick = () => window.aihub.logsOpenDir();
 $('#lg-export').onclick = async () => {

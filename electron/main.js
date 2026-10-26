@@ -29,19 +29,61 @@ function setupAutoUpdater(win) {
 const REGISTRY_URL = 'https://raw.githubusercontent.com/lza6/AI-Tools-Hub/main/registry/manifest.json';
 const IS_WIN = process.platform === 'win32';
 
-function httpGet(url, encoding = 'utf8') {
+function httpGet(url, encoding = 'utf8', redirects = 3) {
   return new Promise((resolve, reject) => {
-    https.get(url, { headers: { 'User-Agent': 'AI-Tools-Hub' } }, res => {
-      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-        return httpGet(res.headers.location, encoding).then(resolve, reject);
+    // NODE-USE-SYSTEM-PROXY 环境下 ELECTRON_RUN_AS_NODE 等场景可能继承失效代理，显式绕过
+    const req = https.get(url, {
+      headers: { 'User-Agent': 'AI-Tools-Hub' },
+      timeout: 20000,
+      // 忽略环境代理变量（https 模块默认不用，防御性设置）
+      agent: new https.Agent({ keepAlive: false }),
+    }, res => {
+      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location && redirects > 0) {
+        res.resume();
+        return httpGet(res.headers.location, encoding, redirects - 1).then(resolve, reject);
       }
-      if (res.statusCode !== 200) return reject(new Error(`HTTP ${res.statusCode} for ${url}`));
+      if (res.statusCode !== 200) {
+        res.resume();
+        return reject(new Error(`HTTP ${res.statusCode} for ${url}`));
+      }
       let data = '';
       res.setEncoding(encoding === 'buffer' ? 'binary' : 'utf8');
       res.on('data', c => (data += c));
       res.on('end', () => resolve(data));
-    }).on('error', reject);
+    });
+    req.on('timeout', () => req.destroy(new Error(`timeout after 20s: ${url}`)));
+    req.on('error', reject);
   });
+}
+
+// 带重试的 httpGet（网络抖动/代理不稳时多试几次）+ GitHub 镜像回退
+// 直连 GitHub 失败（ECONNRESET/302 异常/超时）时自动切换镜像加速
+const GH_MIRRORS = [
+  u => u, // 直连优先
+  u => u.replace('https://raw.githubusercontent.com', 'https://gh-proxy.com/https://raw.githubusercontent.com')
+        .replace('https://github.com', 'https://gh-proxy.com/https://github.com')
+        .replace('https://api.github.com', 'https://gh-proxy.com/https://api.github.com'),
+  u => u.replace('https://raw.githubusercontent.com', 'https://ghfast.top/https://raw.githubusercontent.com')
+        .replace('https://github.com', 'https://ghfast.top/https://github.com')
+        .replace('https://api.github.com', 'https://ghfast.top/https://api.github.com'),
+];
+function isGitHubUrl(u) { return u.includes('github.com') || u.includes('githubusercontent.com'); }
+
+async function httpGetRetry(url, encoding, retries = 2) {
+  let lastErr;
+  const attempts = isGitHubUrl(url) ? GH_MIRRORS.length : 1;
+  for (let m = 0; m < attempts; m++) {
+    const target = GH_MIRRORS[m](url);
+    for (let i = 0; i <= retries; i++) {
+      try { return await httpGet(target, encoding); }
+      catch (e) {
+        lastErr = e;
+        logger.warn('net', `请求失败(镜像${m + 1}/${attempts}, 尝试${i + 1}/${retries + 1}) ${target}: ${e.message}`);
+        if (i < retries) await new Promise(r => setTimeout(r, 1000));
+      }
+    }
+  }
+  throw lastErr;
 }
 
 function runCmd(cmd, args = [], timeout = 30000) {
@@ -61,7 +103,7 @@ async function fetchRegistry() {
   try {
     const local = JSON.parse(readFileSync(path.join(__dirname, '..', 'registry', 'manifest.json'), 'utf8'));
     try {
-      const remote = JSON.parse(await httpGet(REGISTRY_URL));
+      const remote = JSON.parse(await httpGetRetry(REGISTRY_URL));
       return { registry: remote, source: 'remote' };
     } catch {
       return { registry: local, source: 'local' };
@@ -72,7 +114,7 @@ async function fetchRegistry() {
 }
 
 async function getLatestReleaseTag(repo) {
-  const data = JSON.parse(await httpGet(`https://api.github.com/repos/${repo}/releases/latest`));
+  const data = JSON.parse(await httpGetRetry(`https://api.github.com/repos/${repo}/releases/latest`));
   return data.tag_name || null;
 }
 
@@ -203,7 +245,7 @@ function runCmdLogged(id, cmd, args, timeout = 600000) {
 // github-release 直连安装：下载 repo 最新 release 的指定 asset 并安装到用户目录
 async function installFromGithubRelease(id, repo, assetName, destDir, extract) {
   logInstall(id, `查询 GitHub Release: ${repo}`);
-  const rel = JSON.parse(await httpGet(`https://api.github.com/repos/${repo}/releases/latest`));
+  const rel = JSON.parse(await httpGetRetry(`https://api.github.com/repos/${repo}/releases/latest`));
   const asset = (rel.assets || []).find(a => a.name === assetName);
   if (!asset) throw new Error(`Release ${rel.tag_name} 中未找到资产 ${assetName}`);
   logInstall(id, `下载: ${asset.browser_download_url} (${(asset.size / 1048576).toFixed(1)} MB)`);
@@ -211,16 +253,40 @@ async function installFromGithubRelease(id, repo, assetName, destDir, extract) {
   const zipPath = path.join(tmpDir, assetName);
   try { rmSync(tmpDir, { recursive: true, force: true }); } catch {}
   mkdirSync(tmpDir, { recursive: true });
-  await new Promise((resolve, reject) => {
-    const file = createWriteStream(zipPath);
-    https.get(asset.browser_download_url, res => {
-      if (res.statusCode !== 200) return reject(new Error(`下载 HTTP ${res.statusCode}`));
-      const total = +res.headers.content_length || asset.size;
-      let done = 0;
-      res.on('data', c => { done += c.length; logInstall(id, `下载中 ${(done / 1048576).toFixed(1)}/${(total / 1048576).toFixed(1)} MB`); });
-      res.pipe(file); file.on('finish', () => { file.close(); resolve(); }); file.on('error', reject);
-    }).on('error', reject);
-  });
+  // 下载带重试 + 镜像回退（302/ECONNRESET/网络抖动时自动切换）
+  const dlUrls = isGitHubUrl(asset.browser_download_url)
+    ? GH_MIRRORS.map(fn => fn(asset.browser_download_url))
+    : [asset.browser_download_url];
+  let lastDlErr;
+  for (const dlUrl of dlUrls) {
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      try {
+        logInstall(id, `下载(尝试${attempt}): ${dlUrl}`);
+        await new Promise((resolve, reject) => {
+          const file = createWriteStream(zipPath);
+          const req = https.get(dlUrl, {
+            headers: { 'User-Agent': 'AI-Tools-Hub' }, timeout: 60000,
+          }, res => {
+            if (res.statusCode !== 200) { res.resume(); return reject(new Error(`下载 HTTP ${res.statusCode}`)); }
+            const total = +res.headers.content_length || asset.size;
+            let done = 0;
+            res.on('data', c => { done += c.length; if (done % (2 * 1048576) < c.length) logInstall(id, `下载中 ${(done / 1048576).toFixed(1)}/${(total / 1048576).toFixed(1)} MB`); });
+            res.pipe(file); file.on('finish', () => { file.close(); resolve(); }); file.on('error', reject);
+          });
+          req.on('timeout', () => req.destroy(new Error('下载超时 60s')));
+          req.on('error', reject);
+        });
+        lastDlErr = null;
+        break;
+      } catch (e) {
+        lastDlErr = e;
+        logInstall(id, `[warn] 下载失败: ${e.message}`);
+        if (attempt < 2) await new Promise(r => setTimeout(r, 1500));
+      }
+    }
+    if (lastDlErr === null) break;
+  }
+  if (lastDlErr) throw lastDlErr;
   logInstall(id, `解压到 ${tmpDir}`);
   if (assetName.endsWith('.zip')) {
     execFileSync('powershell.exe', ['-NoProfile', '-Command', `Expand-Archive -Path '${zipPath}' -DestinationPath '${tmpDir}\\unz' -Force`]);
@@ -271,12 +337,12 @@ ipcMain.handle('tool:install', async (_e, tool) => {
       r = await installFromGithubRelease(id, tool.repo, inst.asset, inst.destDir, { file: inst.file, prependPath: true });
     } else if (inst.type === 'ps1') {
       if (!IS_WIN) return { ok: false, output: '该安装方式仅支持 Windows' };
-      const script = await httpGet(inst.url);
+      const script = await httpGetRetry(inst.url);
       const tmp = path.join(os.tmpdir(), `aihub-install-${tool.id}.ps1`);
       writeFileSync(tmp, script, 'utf8');
       r = await runCmdLogged(id, 'powershell.exe', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', tmp], 600000);
     } else if (inst.type === 'shell') {
-      const script = await httpGet(inst.url);
+      const script = await httpGetRetry(inst.url);
       const tmp = path.join(os.tmpdir(), `aihub-install-${tool.id}.sh`);
       writeFileSync(tmp, script, 'utf8');
       r = await runCmdLogged(id, 'bash', [tmp], 600000);

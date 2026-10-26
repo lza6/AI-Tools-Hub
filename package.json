@@ -1,12 +1,12 @@
 {
   "name": "ai-tools-hub",
-  "version": "1.0.0",
-  "description": "你的AI军火库 - CLI 工具 / MCP / 技能一站式安装与更新",
+  "version": "1.1.0",
+  "description": "你的AI军火库 - CLI 工具 / MCP / 技能 / Hook 一站式安装与更新",
   "main": "electron/main.js",
   "scripts": {
     "start": "electron .",
-    "dist": "electron-builder --win portable --publish never",
-    "release": "electron-builder --win portable --publish always"
+    "dist": "electron-builder --publish never",
+    "release": "electron-builder --publish always"
   },
   "build": {
     "appId": "com.lza6.ai-tools-hub",
@@ -14,14 +14,13 @@
     "files": [
       "electron/**/*",
       "src/**/*",
-      "registry/**/*"
+      "registry/**/*",
+      "assets/logo-256.png",
+      "assets/icon.ico"
     ],
-    "win": {
-      "target": [
-        "portable",
-        "nsis"
-      ]
-    }
+    "mac": { "icon": "assets/logo-256.png", "target": [{ "target": "dmg", "arch": ["x64", "arm64"] }] },
+    "linux": { "icon": "assets/logo-256.png", "target": ["AppImage", "deb"], "category": "Development" },
+    "win": { "icon": "assets/icon.ico", "target": ["portable", "nsis"] }
   },
   "repository": {
     "type": "git",
@@ -43,6 +42,7 @@
   "homepage": "https://github.com/lza6/AI-Tools-Hub#readme",
   "devDependencies": {
     "electron": "^45.0.0",
-    "electron-builder": "^26.18.0"
+    "electron-builder": "^26.18.0",
+    "png-to-ico": "^3.0.2"
   }
 }

@@ -137,6 +137,128 @@
       "skills": []
     },
     {
+      "id": "cc-switch",
+      "name": "CC-Switch",
+      "fullName": "CC Switch 供应商切换器",
+      "type": "cli-tool",
+      "category": "配置管理",
+      "repo": "farion1231/cc-switch",
+      "description": "Claude Code / Codex / Gemini CLI 等多 AI 供应商配置一键切换器（Tauri 桌面应用），管理不同 API 端点与密钥配置秒级切换。",
+      "capabilities": ["多供应商配置切换", "Windows/macOS/Linux 原生", "API 端点与密钥管理", "Portable 免安装版"],
+      "solves": "多家 API 中转来回改配置文件容易出错；cc-switch 图形化保存多套配置一键切。",
+      "homepage": "https://github.com/farion1231/cc-switch",
+      "conflicts": [],
+      "install": {
+        "windows": { "type": "github-release-zip", "asset": "CC-Switch-{V}-Windows-Portable.zip", "file": "CC-Switch.exe", "oneLiner": "从 Releases 下载 Windows Portable zip 解压即用" },
+        "macos": { "type": "github-release-dmg", "asset": "CC-Switch-{V}-macOS.dmg", "oneLiner": "从 Releases 下载 macOS dmg" },
+        "linux": { "type": "github-release-appimage", "asset": "CC-Switch-{V}-Linux-x86_64.AppImage", "oneLiner": "从 Releases 下载 AppImage" }
+      },
+      "versionCmd": "cc-switch --version",
+      "versionProbe": { "type": "github-tag", "stripPrefix": "v" },
+      "usage": {
+        "quickStart": "下载 Portable 双击运行",
+        "quickStartDesc": "桌面 GUI 应用，启动后在界面里添加各供应商配置（名称+BASE_URL+API Key），点切换即写入对应 CLI 配置",
+        "commands": [
+          { "cmd": "CC-Switch.exe（双击）", "desc": "启动图形界面管理所有供应商配置" },
+          { "cmd": "切换供应商", "desc": "界面内点击即改写 Claude Code/Codex 配置，秒级生效" }
+        ],
+        "notes": "GitHub tag 版本带 v 前缀（v4.0.21），应用内版本比对已做 stripPrefix 处理"
+      },
+      "skills": []
+    },
+    {
+      "id": "trivy",
+      "name": "Trivy",
+      "fullName": "Trivy Security Scanner",
+      "type": "cli-tool",
+      "category": "安全",
+      "repo": "aquasecurity/trivy",
+      "description": "全方位安全扫描器事实标准：依赖漏洞（SCA）、IaC 配置错误、密钥泄露、容器镜像一站式扫描。",
+      "capabilities": ["依赖漏洞扫描", "IaC 配置检查", "密钥泄露检测", "容器镜像扫描", "单二进制零依赖"],
+      "solves": "提交前想知道依赖有没有 CVE、代码里有没有硬编码密钥；trivy fs . 一条命令全查。",
+      "homepage": "https://github.com/aquasecurity/trivy",
+      "conflicts": [],
+      "install": {
+        "windows": { "type": "github-release-zip", "asset": "trivy_{V}_windows-64bit.zip", "file": "trivy.exe", "oneLiner": "从 Releases 下载 windows-64bit.zip 解压即用" },
+        "macos": { "type": "brew", "pkg": "trivy", "oneLiner": "brew install trivy" },
+        "linux": { "type": "shell", "url": "https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh", "oneLiner": "curl -fsSL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh" }
+      },
+      "versionCmd": "trivy --version",
+      "versionProbe": { "type": "github-tag", "stripPrefix": "v" },
+      "usage": {
+        "quickStart": "trivy fs .",
+        "quickStartDesc": "扫描当前目录：依赖漏洞 + IaC 错误 + 密钥泄露一次全出",
+        "commands": [
+          { "cmd": "trivy fs .", "desc": "扫描当前项目文件系统（依赖/IaC/密钥）" },
+          { "cmd": "trivy image <镜像名>", "desc": "扫描容器镜像漏洞" },
+          { "cmd": "trivy fs --scanners vuln,secret .", "desc": "只扫漏洞和密钥（跳过 IaC 加速）" },
+          { "cmd": "trivy fs --severity HIGH,CRITICAL .", "desc": "只看高危以上，输出干净" }
+        ],
+        "notes": "首次扫描会下载漏洞库（几十 MB，之后本地增量更新）；可挂 pre-commit 或 CI 做提交前门禁"
+      },
+      "skills": []
+    },
+    {
+      "id": "ccstatusline",
+      "name": "CCStatusline",
+      "fullName": "Claude Code Status Line",
+      "type": "hook",
+      "category": "开发体验",
+      "repo": "sirmalloc/ccstatusline",
+      "description": "Claude Code 状态栏格式化器：模型名、context 用量、token 消耗实时显示，高度可配置，零安装 npx 直跑。",
+      "capabilities": ["状态栏实时显示", "context 用量监控", "模型名/token 统计", "高度可配置", "零安装"],
+      "solves": "Claude Code 默认状态栏信息少；ccstatusline 显示 context 还剩多少，避免会话中途爆上下文。",
+      "homepage": "https://github.com/sirmalloc/ccstatusline",
+      "conflicts": ["与 context-mode 的 statusline 功能重叠（二选一）"],
+      "install": {
+        "windows": { "type": "npx-config", "pkg": "ccstatusline", "oneLiner": "npx -y ccstatusline@latest 然后按提示写入 Claude Code settings" },
+        "macos": { "type": "npx-config", "pkg": "ccstatusline", "oneLiner": "npx -y ccstatusline@latest" },
+        "linux": { "type": "npx-config", "pkg": "ccstatusline", "oneLiner": "npx -y ccstatusline@latest" }
+      },
+      "versionCmd": "npx -y ccstatusline@latest --version",
+      "versionProbe": { "type": "npm", "pkg": "ccstatusline" },
+      "usage": {
+        "quickStart": "npx -y ccstatusline@latest",
+        "quickStartDesc": "交互式 TUI 配置器：选好显示项自动写入 ~/.claude/settings.json 的 statusLine 字段",
+        "commands": [
+          { "cmd": "npx -y ccstatusline@latest", "desc": "打开 TUI 配置器（选显示项→自动写入 settings.json）" },
+          { "cmd": "npx -y ccstatusline@latest --help", "desc": "查看全部选项" }
+        ],
+        "notes": "无需全局安装，Claude Code 每次渲染状态栏时 npx 拉起；配置一次永久生效"
+      },
+      "skills": []
+    },
+    {
+      "id": "agent-guardrails",
+      "name": "Agent-Guardrails",
+      "fullName": "Agent Guardrails 危险命令拦截",
+      "type": "hook",
+      "category": "安全",
+      "repo": "roboticforce/agent-guardrails",
+      "description": "AI agent 危险命令硬拦截：hook 层直接阻断 terraform destroy / DROP DATABASE / rm -rf 等毁灭性命令，防生产事故。",
+      "capabilities": ["危险命令硬拦截", "PreToolUse hook", "策略规则集", "生产事故防护", "纯配置零依赖"],
+      "solves": "人审批时看不清命令范围照样点同意（2026.7 Opus5 ultracode 删库事故）；guardrails 在 hook 层直接拒绝，不给审批机会。",
+      "homepage": "https://github.com/agent-guardrails/agent-guardrails",
+      "conflicts": [],
+      "install": {
+        "windows": { "type": "copy-config", "oneLiner": "将 claude-code/ 下的 hooks 配置与 policies 复制进 ~/.claude/ 与项目 .claude/" },
+        "macos": { "type": "copy-config", "oneLiner": "同 Windows" },
+        "linux": { "type": "copy-config", "oneLiner": "同 Windows" }
+      },
+      "versionCmd": "echo manual",
+      "versionProbe": { "type": "github-tag" },
+      "usage": {
+        "quickStart": "复制 claude-code/ hooks 配置到 ~/.claude/",
+        "quickStartDesc": "PreToolUse hook 读取 policies/ 规则集，Bash 命令进 hook 时正则匹配危险模式（destroy/drop/rm -rf 等）直接 block",
+        "commands": [
+          { "cmd": "cp -r claude-code/* ~/.claude/", "desc": "安装 hooks 到 Claude Code（项目级可放 .claude/）" },
+          { "cmd": "policies/*.yaml", "desc": "规则集：按项目需要启用/裁剪拦截策略" }
+        ],
+        "notes": "零运行时依赖，纯 hook 配置；误拦时在 policies 里放行特定命令即可。独有价值：审批发生在 hook 层而非人工层"
+      },
+      "skills": []
+    },
+    {
       "id": "rtk",
       "name": "RTK",
       "fullName": "RTK CLI Proxy",

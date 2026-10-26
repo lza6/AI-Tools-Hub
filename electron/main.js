@@ -128,11 +128,25 @@ async function getLatestReleaseTag(repo) {
   return data.tag_name || null;
 }
 
+// versionProbe: 本地无 --version 输出或 tag 带 v 前缀时的版本探测策略
+async function probeLatest(tool) {
+  const probe = tool.versionProbe || {};
+  if (probe.type === 'npm') {
+    const r = await runCmdLogged(tool.id, 'npm', ['view', probe.pkg || tool.id, 'version'], 30000);
+    return r.ok ? r.output.trim() : null;
+  }
+  // 默认 github-tag
+  const tag = await getLatestReleaseTag(tool.repo);
+  return probe.stripPrefix ? tag.replace(/^v/, '') : tag;
+}
+
 async function inspectTool(tool) {
   const bin = tool.id;
-  logger.debug(`inspect:${bin}`, `检测 ${bin}: cmd=${tool.versionCmd}`);
+  const probe = tool.versionProbe || {};
+  // versionProbe.type=npm 的工具可能没有本地二进制（如 npx 直跑类），detect 放行
   const [detect, ver] = await Promise.all([
-    IS_WIN ? runCmd('where.exe', [bin]) : runCmd('which', [bin]),
+    probe.type === 'npm' ? Promise.resolve({ ok: true, output: '', error: null }) :
+      (IS_WIN ? runCmd('where.exe', [bin]) : runCmd('which', [bin])),
     runCmd(tool.versionCmd.split(' ')[0], tool.versionCmd.split(' ').slice(1)),
   ]);
   const installed = detect.ok && ver.ok;
@@ -141,8 +155,8 @@ async function inspectTool(tool) {
   let latestVersion = null, hasUpdate = false;
   if (installed) {
     try {
-      const tag = await getLatestReleaseTag(tool.repo);
-      latestVersion = extractVersion(tag) || (tag ? tag.replace(/^v/, '') : null);
+      latestVersion = await probeLatest(tool);
+      latestVersion = extractVersion(latestVersion) || latestVersion;
       hasUpdate = !!(localVersion && latestVersion && latestVersion !== localVersion);
     } catch (e) { logger.warn(`inspect:${bin}`, `更新检查失败: ${e.message}`); }
   }
@@ -253,11 +267,14 @@ function runCmdLogged(id, cmd, args, timeout = 600000) {
 }
 
 // github-release 直连安装：下载 repo 最新 release 的指定 asset 并安装到用户目录
+// asset 名支持 {V} 占位符（替换为去掉 v 前缀的版本号），适配资产名带版本的工具（cc-switch/trivy 等）
 async function installFromGithubRelease(id, repo, assetName, destDir, extract) {
   logInstall(id, `查询 GitHub Release: ${repo}`);
   const rel = JSON.parse(await httpGetRetry(`https://api.github.com/repos/${repo}/releases/latest`));
-  const asset = (rel.assets || []).find(a => a.name === assetName);
-  if (!asset) throw new Error(`Release ${rel.tag_name} 中未找到资产 ${assetName}`);
+  const ver = rel.tag_name.replace(/^v/, '');
+  const wanted = assetName.replace(/\{V\}/g, ver);
+  const asset = (rel.assets || []).find(a => a.name === wanted);
+  if (!asset) throw new Error(`Release ${rel.tag_name} 中未找到资产 ${wanted}`);
   logInstall(id, `下载: ${asset.browser_download_url} (${(asset.size / 1048576).toFixed(1)} MB)`);
   const tmpDir = path.join(os.tmpdir(), `aihub-ghrel-${id}`);
   const zipPath = path.join(tmpDir, assetName);
@@ -343,8 +360,23 @@ ipcMain.handle('tool:install', async (_e, tool) => {
     if (!inst) { logInstall(id, `[错误] 清单中缺少 ${process.platform} 平台的安装配置`); return { ok: false, output: `清单中缺少 ${process.platform} 平台的安装配置` }; }
     logInstall(id, `安装方式: ${inst.type} ${inst.pkg || inst.asset || inst.url || ''}`);
     let r;
-    if (inst.type === 'github-release') {
-      r = await installFromGithubRelease(id, tool.repo, inst.asset, inst.destDir, { file: inst.file, prependPath: true });
+    if (inst.type === 'github-release' || inst.type === 'github-release-zip') {
+      r = await installFromGithubRelease(id, tool.repo, inst.asset, inst.destDir, { file: inst.file, prependPath: inst.type === 'github-release' });
+      // zip 类（桌面应用如 cc-switch）解压后放 Programs/<id> 不加 PATH
+    } else if (inst.type === 'copy-config') {
+      // 纯配置类工具（如 agent-guardrails）：clone 仓库后复制配置目录
+      const dest = path.join(os.homedir(), '.aihub-tools', id);
+      logInstall(id, `克隆仓库到 ${dest}`);
+      const g = await runCmdLogged(id, 'git', ['clone', '--depth', '1', `https://github.com/${tool.repo}.git`, dest], 300000);
+      r = g.ok ? { ok: true, output: `已克隆到 ${dest}，请按 usage 说明复制配置进 ~/.claude/` } : g;
+    } else if (inst.type === 'npx-config') {
+      // npx 交互式配置类（如 ccstatusline）：直接跑 npx 让用户在 TUI 里配置
+      r = await runCmdLogged(id, 'npx', ['-y', `${inst.pkg}@latest`], 300000);
+    } else if (inst.type === 'github-release-dmg' || inst.type === 'github-release-appimage') {
+      // mac/linux 桌面应用：下载到下载目录，不自动装
+      const dlPath = path.join(app.getPath('downloads'), inst.asset.replace(/\{V\}/g, ''));
+      logInstall(id, `桌面应用下载到 ${dlPath}`);
+      r = await runCmdLogged(id, 'curl', ['-fsSL', '--max-time', '300', '-o', dlPath, `https://gh-proxy.com/https://github.com/${tool.repo}/releases/latest/download/${inst.asset.replace(/\{V\}/g, '')}`], 400000);
     } else if (inst.type === 'ps1') {
       if (!IS_WIN) return { ok: false, output: '该安装方式仅支持 Windows' };
       const script = await httpGetRetry(inst.url);

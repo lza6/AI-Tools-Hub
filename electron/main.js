@@ -372,6 +372,9 @@ ipcMain.handle('tool:install', async (_e, tool) => {
     } else if (inst.type === 'npx-config') {
       // npx 交互式配置类（如 ccstatusline）：直接跑 npx 让用户在 TUI 里配置
       r = await runCmdLogged(id, 'npx', ['-y', `${inst.pkg}@latest`], 300000);
+    } else if (inst.type === 'npx-run') {
+      // npx 执行式（如 token-optimizer init）：npx 包名 + 子命令
+      r = await runCmdLogged(id, 'npx', ['-y', inst.pkg, ...(inst.args || [])], 600000);
     } else if (inst.type === 'github-release-dmg' || inst.type === 'github-release-appimage') {
       // mac/linux 桌面应用：下载到下载目录，不自动装
       const dlPath = path.join(app.getPath('downloads'), inst.asset.replace(/\{V\}/g, ''));

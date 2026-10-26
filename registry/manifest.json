@@ -3,6 +3,133 @@
   "updatedAt": "2026-07-13",
   "tools": [
     {
+      "id": "caveman",
+      "name": "Caveman",
+      "fullName": "Caveman Context Compressor",
+      "type": "skill",
+      "category": "上下文优化",
+      "repo": "JuliusBrussee/caveman",
+      "description": "上下文压缩技能：让 agent 输出省 75% token、输入省 46%，安装命令自动检测 30+ agent（Claude Code/Codex/Cursor 等）。",
+      "capabilities": ["输出省 75% token", "输入省 46%", "30+ agent 自动检测", "技能形式零依赖", "按需唤醒（/caveman）"],
+      "solves": "agent 话多费 token；caveman 用技能约束输出密度，与 icm（存储）、context-mode（检索）组成省 token 全链路。",
+      "homepage": "https://github.com/JuliusBrussee/caveman",
+      "conflicts": ["与 rtk（压缩命令输出）互补不冲突；与 context-mode（压缩 MCP 输出）可叠加"],
+      "install": {
+        "windows": { "type": "npm", "pkg": "caveman", "oneLiner": "caveman-install（或 npx skills add JuliusBrussee/caveman）" },
+        "macos": { "type": "npm", "pkg": "caveman", "oneLiner": "caveman-install" },
+        "linux": { "type": "npm", "pkg": "caveman", "oneLiner": "caveman-install" }
+      },
+      "versionCmd": "caveman-install --version",
+      "versionProbe": { "type": "github-tag", "stripPrefix": "v" },
+      "usage": {
+        "quickStart": "caveman-install",
+        "quickStartDesc": "自动检测已装 agent 并写入技能；之后 agent 自动进入省 token 模式，不醒就 /caveman",
+        "commands": [
+          { "cmd": "caveman-install", "desc": "全局安装并自动配置检测到的 agent" },
+          { "cmd": "/caveman", "desc": "agent 内手动唤醒压缩模式" },
+          { "cmd": "npx skills add JuliusBrussee/caveman", "desc": "走 Agent Skills 标准安装（71 个 agent 兼容）" }
+        ],
+        "notes": "v4.0.1；MIT 许可；技能是静态注入的提示词约束，不吃运行时性能"
+      },
+      "skills": [
+        { "name": "Caveman 压缩技能", "agents": ["claude-code"], "installCmd": "caveman-install", "dir": "caveman", "keywords": ["caveman"], "description": "输出压缩技能注入" }
+      ]
+    },
+    {
+      "id": "openspec",
+      "name": "OpenSpec",
+      "fullName": "OpenSpec Spec-Driven Development",
+      "type": "cli-tool",
+      "category": "工作流",
+      "repo": "Fission-AI/OpenSpec",
+      "description": "规格驱动开发（SDD）CLI：先写规格再写码，变更提案→审批→实施的全流程管理，Claude Code 契合度最高。",
+      "capabilities": ["规格驱动开发流程", "变更提案管理", "agent 指令自动生成", "多 agent 支持", "npm 一键装"],
+      "solves": "AI 写码没规格容易跑偏返工；OpenSpec 强制先出规格提案、审批后实施，可追溯。",
+      "homepage": "https://github.com/Fission-AI/OpenSpec",
+      "conflicts": ["与 spec-kit（GitHub 官方 SDD）同赛道竞品，二选一"],
+      "install": {
+        "windows": { "type": "npm", "pkg": "@fission-ai/openspec", "oneLiner": "npm install -g @fission-ai/openspec@latest" },
+        "macos": { "type": "npm", "pkg": "@fission-ai/openspec", "oneLiner": "npm install -g @fission-ai/openspec@latest" },
+        "linux": { "type": "npm", "pkg": "@fission-ai/openspec", "oneLiner": "npm install -g @fission-ai/openspec@latest" }
+      },
+      "versionCmd": "openspec --version",
+      "versionProbe": { "type": "npm", "pkg": "@fission-ai/openspec" },
+      "usage": {
+        "quickStart": "openspec init",
+        "quickStartDesc": "项目根目录初始化 openspec/ 结构并配置 agent 指令",
+        "commands": [
+          { "cmd": "openspec init", "desc": "在当前项目初始化规格目录结构" },
+          { "cmd": "openspec proposal <变更名>", "desc": "创建变更提案（规格 diff）供审批" },
+          { "cmd": "openspec archive <变更名>", "desc": "实施完成后归档变更" },
+          { "cmd": "openspec list", "desc": "列出进行中的变更提案" }
+        ],
+        "notes": "npm 包名带 scope（@fission-ai/openspec），命令名是 openspec；版本探测走 npm registry"
+      },
+      "skills": []
+    },
+    {
+      "id": "claude-token-optimizer",
+      "name": "Token-Optimizer",
+      "fullName": "Claude Token Optimizer",
+      "type": "cli-tool",
+      "category": "上下文优化",
+      "repo": "nadimtuhin/claude-token-optimizer",
+      "description": "项目文档结构重构：把 CLAUDE.md 体系优化为按需加载结构，启动 token 省 ~90%（从 15k 降到 1.5k 级别）。",
+      "capabilities": ["文档结构重构", "启动 token 省 90%", "按需加载", "一键 init", "效果可量化"],
+      "solves": "CLAUDE.md 越写越长每次会话都全量吃进上下文；optimizer 重构为索引+按需读取。",
+      "homepage": "https://github.com/nadimtuhin/claude-token-optimizer",
+      "conflicts": ["会重写你的 CLAUDE.md 结构——执行前确认有备份"],
+      "install": {
+        "windows": { "type": "npx-run", "pkg": "claude-token-optimizer", "args": ["init"], "oneLiner": "npx claude-token-optimizer init" },
+        "macos": { "type": "npx-run", "pkg": "claude-token-optimizer", "args": ["init"], "oneLiner": "npx claude-token-optimizer init" },
+        "linux": { "type": "npx-run", "pkg": "claude-token-optimizer", "args": ["init"], "oneLiner": "npx claude-token-optimizer init" }
+      },
+      "versionCmd": "npx claude-token-optimizer --version",
+      "versionProbe": { "type": "npm", "pkg": "claude-token-optimizer" },
+      "usage": {
+        "quickStart": "npx claude-token-optimizer init",
+        "quickStartDesc": "扫描项目文档结构并重构为按需加载形态；建议在 git 干净状态执行以便回滚",
+        "commands": [
+          { "cmd": "npx claude-token-optimizer init", "desc": "分析并重构当前项目的 CLAUDE.md 体系" },
+          { "cmd": "npx claude-token-optimizer --help", "desc": "查看子命令" }
+        ],
+        "notes": "改动前务必备份（git commit）；重构后前后 token 对比工具会输出"
+      },
+      "skills": []
+    },
+    {
+      "id": "planning-with-files",
+      "name": "Planning-With-Files",
+      "fullName": "Planning With Files 持久化执行计划",
+      "type": "skill",
+      "category": "工作流",
+      "repo": "OthmanAdi/planning-with-files",
+      "description": "磁盘持久化执行计划技能：任务计划/进展/发现写进 task_plan.md 等文件，每轮自动回注上下文，/clear 和压缩都不丢。",
+      "capabilities": ["计划文件持久化", "每轮回注上下文", "跨会话存活", "hook 自动注入", "Trending #1 有 A/B 数据"],
+      "solves": "长任务做到一半上下文被压缩，agent 忘了之前进展；计划在磁盘上，随时捡回。",
+      "homepage": "https://github.com/OthmanAdi/planning-with-files",
+      "conflicts": [],
+      "install": {
+        "windows": { "type": "npm", "pkg": "skills", "args": ["add", "OthmanAdi/planning-with-files", "--skill", "planning-with-files", "-g"], "oneLiner": "npx skills add OthmanAdi/planning-with-files --skill planning-with-files -g" },
+        "macos": { "type": "npm", "pkg": "skills", "args": ["add", "OthmanAdi/planning-with-files", "--skill", "planning-with-files", "-g"], "oneLiner": "npx skills add OthmanAdi/planning-with-files --skill planning-with-files -g" },
+        "linux": { "type": "npm", "pkg": "skills", "args": ["add", "OthmanAdi/planning-with-files", "--skill", "planning-with-files", "-g"], "oneLiner": "npx skills add OthmanAdi/planning-with-files --skill planning-with-files -g" }
+      },
+      "versionCmd": "echo skill",
+      "versionProbe": { "type": "github-tag" },
+      "usage": {
+        "quickStart": "npx skills add OthmanAdi/planning-with-files --skill planning-with-files -g",
+        "quickStartDesc": "经 npx skills 安装到 ~/.agents/skills/（71 个 agent 兼容）；Claude Code 插件路线则含 skill+hooks+slash 命令全家桶",
+        "commands": [
+          { "cmd": "npx skills add OthmanAdi/planning-with-files --skill planning-with-files -g", "desc": "全局安装技能（Agent Skills 标准路径）" },
+          { "cmd": "/plan", "desc": "agent 内创建 task_plan.md（接受 plan-mode 方案后落盘）" }
+        ],
+        "notes": "与 plan mode 互补：plan mode 设计方案，planning-with-files 在执行期持久化状态；hooks 自动维持文件在注意力窗口"
+      },
+      "skills": [
+        { "name": "Planning-With-Files 技能", "agents": ["claude-code"], "installCmd": "npx skills add OthmanAdi/planning-with-files --skill planning-with-files -g", "dir": "planning-with-files", "keywords": ["planning-with-files", "task_plan.md"], "description": "磁盘持久化计划技能" }
+      ]
+    },
+    {
       "id": "icm",
       "name": "ICM",
       "fullName": "Infinite Context Memory",
